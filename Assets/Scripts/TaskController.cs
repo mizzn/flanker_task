@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Linq;
 using System;
 using System.Threading.Tasks;
+using UnityEngine.UI;
 
 
 public class TaskController : MonoBehaviour
@@ -15,14 +16,20 @@ public class TaskController : MonoBehaviour
     public GameObject rightIncongruent; //3
     private GameObject currentInstance; 
     private int STIMULI_NUM = 10; //刺激の数，ホントは40
+    private string[] stimuliNames = {"leftCongruent", "leftIncongruent", "rightCongruent", "rightIncongruent"};
+    
+    private bool rightPressed = false; //右トリガー
+    private bool leftPressed = false; //左トリガー
+    private float WAIT_TIME = 5f; //次の刺激までの待機時間
+    
+    private string selected = "init";
 
     
     // Start is called before the first frame update
     void Start()
     {
-        // 各タスクを10個ずつリストに追加
-        string[] stimuliNames = {"leftCongruent", "leftIncongruent", "rightCongruent", "rightIncongruent"};
-        // Debug.Log(taskNames[0]); 
+
+        // 各刺激名を10個ずつリストに追加
         var stimuliList = new List<string>();
         for(int i = 0; i < 4; i++){
             for(int j = 0; j < 10; j++){
@@ -45,15 +52,100 @@ public class TaskController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       
+        // トリガーを常に監視
+        WatchTrigger();
+    }
+
+    void WatchTrigger(){
+        /*
+            トリガーが押されたかどうかを監視する
+            Falseに戻すのを忘れないこと！ResetTriggerといっしょに使う
+        */
+        if (OVRInput.GetDown(OVRInput.Button.SecondaryIndexTrigger)){
+            rightPressed = true;
+        } else if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger)){
+            leftPressed = true;
+        }
+    }
+
+    void InitTrigger(string selected){
+        if (selected == "right"){
+            rightPressed = false;
+        }else if (selected == "left"){
+            leftPressed = false;
+        }else if (selected == "init"){
+            // 何もしない
+        }else{
+            Debug.Log("ERROR : InitTrigger");
+        }
     }
 
     private IEnumerator RunTask(List<string> stimuliList){
+        Debug.Log("Now RunTask...");
+        Debug.Log(string.Join(",", stimuliList));
+        /* 
+            フランカー課題を実行する
+            Args:
+            List<string> stimuliList : 刺激名が試行回数分，シャッフルした状態で入れられたリスト
+        */
+        for(int i = 0; i < stimuliList.Count; i++){
+            // Debug.Log(i);
+            // Debug.Log(stimuliList[i]); //なぜか正しく動作しないときがある．原因不明
+            string stimulus = stimuliList[i];
 
-        for(int i = 0; i < STIMULI_NUM; i++){
-            Debug.Log(i);
-            Debug.Log(stimuliList[i]);
-            yield return new WaitForSeconds(1f);
+            // 一応ね
+            if (currentInstance != null)
+            {
+                Destroy(currentInstance);
+            }
+
+            //名前と同じ刺激をインスタンス化  "leftCongruent", "leftIncongruent", "rightCongruent", "rightIncongruent"
+            if (stimulus == "leftCongruent"){
+                currentInstance = Instantiate(leftCongruent);
+            } else if (stimulus == "leftIncongruent"){
+                currentInstance = Instantiate(leftIncongruent);
+            } else if (stimulus == "rightCongruent"){
+                currentInstance = Instantiate(rightCongruent);
+            } else if (stimulus == "rightIncongruent"){
+                currentInstance = Instantiate(rightIncongruent);
+            } else{
+                Debug.Log("ERROR : stimuli instantiate");
+                yield break;
+            }
+
+            // ボタンが押されるまで待つ
+            yield return new WaitUntil(() => (rightPressed  || leftPressed));
+
+            // 押されたボタンはどっち？
+            if (rightPressed){
+                selected = "right";
+            }else if (leftPressed){
+                selected = "left";
+            }else{
+                Debug.Log("ERROR : Pressed");
+                yield break;
+            }
+
+
+            // 正誤判定とそのときの処理
+            if (stimulus.Contains(selected)){
+                // TestText.text = "CORRECT";
+                Debug.Log("CORRECT!!!");
+            }else{
+                // TestText.text = "MISS";
+                Debug.Log("MISS!!!");
+            }
+
+            // Triggerの判定を初期化
+            InitTrigger(selected);
+
+            // インスタンス削除
+            Destroy(currentInstance);
+
+
+            yield return new WaitForSeconds(WAIT_TIME);
+
+            
         }
 
         /*
@@ -78,5 +170,7 @@ public class TaskController : MonoBehaviour
             cnt++;
         }*/
     }
+
+
    
 }
