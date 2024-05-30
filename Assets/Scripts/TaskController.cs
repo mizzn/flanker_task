@@ -17,11 +17,7 @@ public class TaskController : MonoBehaviour
     private GameObject currentInstance; 
     private int STIMULI_NUM = 10; //刺激の数，ホントは40
     private string[] stimuliNames = {"leftCongruent", "leftIncongruent", "rightCongruent", "rightIncongruent"};
-    
-    private bool rightPressed = false; //右トリガー
-    private bool leftPressed = false; //左トリガー
     private float WAIT_TIME = 5f; //次の刺激までの待機時間
-    
     private string selected = "init";
 
     
@@ -53,14 +49,11 @@ public class TaskController : MonoBehaviour
     void Update()
     {
         // トリガーを常に監視
-        WatchTrigger();
+        // WatchTrigger();
     }
 
+/*
     void WatchTrigger(){
-        /*
-            トリガーが押されたかどうかを監視する
-            Falseに戻すのを忘れないこと！ResetTriggerといっしょに使う
-        */
         if (OVRInput.GetDown(OVRInput.Button.SecondaryIndexTrigger)){
             rightPressed = true;
         } else if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger)){
@@ -79,6 +72,7 @@ public class TaskController : MonoBehaviour
             Debug.Log("ERROR : InitTrigger");
         }
     }
+*/
 
     private IEnumerator RunTask(List<string> stimuliList){
         Debug.Log("Now RunTask...");
@@ -114,17 +108,19 @@ public class TaskController : MonoBehaviour
             }
 
             // ボタンが押されるまで待つ
-            yield return new WaitUntil(() => (rightPressed  || leftPressed));
-
-            // 押されたボタンはどっち？
-            if (rightPressed){
-                selected = "right";
-            }else if (leftPressed){
-                selected = "left";
-            }else{
-                Debug.Log("ERROR : Pressed");
-                yield break;
-            }
+            yield return new WaitUntil(() => {
+                if (OVRInput.GetDown(OVRInput.Button.SecondaryIndexTrigger))
+                {
+                    selected = "right";
+                    return true;
+                }
+                if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger))
+                {
+                    selected = "left";
+                    return true;
+                }
+                return false;
+            });
 
 
             // 正誤判定とそのときの処理
@@ -135,14 +131,13 @@ public class TaskController : MonoBehaviour
                 // TestText.text = "MISS";
                 Debug.Log("MISS!!!");
             }
-
-            // Triggerの判定を初期化
-            InitTrigger(selected);
-
+            
             // インスタンス削除
             Destroy(currentInstance);
+            // 選択を初期化
+            selected = "init";
 
-
+            // 次の刺激表示まで待機
             yield return new WaitForSeconds(WAIT_TIME);
 
             
