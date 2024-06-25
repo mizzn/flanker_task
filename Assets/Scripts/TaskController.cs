@@ -4,26 +4,43 @@ using UnityEngine;
 // using UnityEngine.UI;
 using System.Linq;
 using System;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine.UI;
 
 
 public class TaskController : MonoBehaviour
 {
-    public GameObject leftCongruent; //0
-    public GameObject leftIncongruent; //1
-    public GameObject rightCongruent; //2
-    public GameObject rightIncongruent; //3
+    //アタッチの必要があるやつ
+    public GameObject leftCongruent;
+    public GameObject leftIncongruent; 
+    public GameObject rightCongruent; 
+    public GameObject rightIncongruent; 
+    public GameObject cameraRigObject;
+    
+
+    //アタッチの必要なし
     private GameObject currentInstance; 
     private int STIMULI_NUM = 10; //刺激の数，ホントは40
     private string[] stimuliNames = {"leftCongruent", "leftIncongruent", "rightCongruent", "rightIncongruent"};
     private float WAIT_TIME = 5f; //次の刺激までの待機時間
     private string selected = "init";
+    private float cameraHeight;
+    OVRCameraRig cameraRig;
+    string dateTime = "Sample";
+    string dirPath;
+    string filePath;
+    string fileName = "controll";
+    private StreamWriter streamWriter;
 
     
     // Start is called before the first frame update
     void Start()
     {
+        // カメラの高さ
+        cameraRig = cameraRigObject.GetComponent<OVRCameraRig>();
+        cameraHeight = cameraRig.centerEyeAnchor.position.y;
 
         // 各刺激名を10個ずつリストに追加
         var stimuliList = new List<string>();
@@ -34,11 +51,23 @@ public class TaskController : MonoBehaviour
         }
         // ランダムにシャッフル
         stimuliList = stimuliList.OrderBy(a => Guid.NewGuid()).ToList();
-        Debug.Log(string.Join(",", stimuliList));
 
+        // 保存の準備
+        Debug.Log(Application.persistentDataPath);
+        dirPath = Application.persistentDataPath + "/" + dateTime;
 
-        //InvokeRepeating("Toggle", 0f, 3f);
-        // Toggle();
+        // ディレクトリの存在確認，デバッグ用かな
+        if(!Directory.Exists(dirPath)){
+            Directory.CreateDirectory(dirPath); //なかったらつくる
+        }
+        
+        filePath = dirPath + "/" + fileName + ".csv";
+        // ファイルの存在確認
+        if(!File.Exists(filePath)){
+            File.Create(filePath); //なかったら作る
+        }
+        // ラベルを追加
+        AddData(filePath, "stimulus, response, TF, RT"); 
 
         IEnumerator runTask = RunTask(stimuliList);
         StartCoroutine(runTask);
@@ -48,44 +77,25 @@ public class TaskController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // トリガーを常に監視
-        // WatchTrigger();
+        Debug.Log("cameraRig.centerEyeAnchor.position.y :");
+        Debug.Log(cameraRig.centerEyeAnchor.position.y);
+        Debug.Log("Application.persistentDataPath");
+        Debug.Log(Application.persistentDataPath);
     }
-
-/*
-    void WatchTrigger(){
-        if (OVRInput.GetDown(OVRInput.Button.SecondaryIndexTrigger)){
-            rightPressed = true;
-        } else if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger)){
-            leftPressed = true;
-        }
-    }
-
-    void InitTrigger(string selected){
-        if (selected == "right"){
-            rightPressed = false;
-        }else if (selected == "left"){
-            leftPressed = false;
-        }else if (selected == "init"){
-            // 何もしない
-        }else{
-            Debug.Log("ERROR : InitTrigger");
-        }
-    }
-*/
 
     private IEnumerator RunTask(List<string> stimuliList){
         Debug.Log("Now RunTask...");
-        Debug.Log(string.Join(",", stimuliList));
-        /* 
-            フランカー課題を実行する
-            Args:
-            List<string> stimuliList : 刺激名が試行回数分，シャッフルした状態で入れられたリスト
-        */
-        for(int i = 0; i < stimuliList.Count; i++){
-            // Debug.Log(i);
-            // Debug.Log(stimuliList[i]); //なぜか正しく動作しないときがある．原因不明
+        // Debug.Log(string.Join(",", stimuliList));
+        
+        for(int i = 0; i < STIMULI_NUM; i++){
+            Debug.Log(i);
+            Debug.Log(stimuliList[i]); //なぜか正しく動作しないときがある．原因不明
+
+            // csv書き込み用の変数
             string stimulus = stimuliList[i];
+            string response = "";
+            string TF = "";
+            string RT = "";
 
             // 一応ね
             if (currentInstance != null)
@@ -93,30 +103,41 @@ public class TaskController : MonoBehaviour
                 Destroy(currentInstance);
             }
 
-            //名前と同じ刺激をインスタンス化  "leftCongruent", "leftIncongruent", "rightCongruent", "rightIncongruent"
+            System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
+
+            //名前と同じ刺激をインスタンス化
             if (stimulus == "leftCongruent"){
-                currentInstance = Instantiate(leftCongruent);
+                currentInstance = Instantiate(leftCongruent, new Vector3(leftCongruent.transform.position.x, cameraHeight, leftCongruent.transform.position.z), Quaternion.identity);
+                stopWatch.Start();
             } else if (stimulus == "leftIncongruent"){
-                currentInstance = Instantiate(leftIncongruent);
+                currentInstance = Instantiate(leftIncongruent, new Vector3(leftIncongruent.transform.position.x, cameraHeight, leftIncongruent.transform.position.z), Quaternion.identity);
+                stopWatch.Start();
             } else if (stimulus == "rightCongruent"){
-                currentInstance = Instantiate(rightCongruent);
+                currentInstance = Instantiate(rightCongruent, new Vector3(rightCongruent.transform.position.x, cameraHeight, rightCongruent.transform.position.z), Quaternion.identity);
+                stopWatch.Start();
             } else if (stimulus == "rightIncongruent"){
-                currentInstance = Instantiate(rightIncongruent);
+                currentInstance = Instantiate(rightIncongruent, new Vector3(rightIncongruent.transform.position.x, cameraHeight, rightIncongruent.transform.position.z), Quaternion.identity);
+                stopWatch.Start();
             } else{
                 Debug.Log("ERROR : stimuli instantiate");
                 yield break;
             }
+            
 
-            // ボタンが押されるまで待つ
+            // ボタンが押されるまで待つ,
             yield return new WaitUntil(() => {
                 if (OVRInput.GetDown(OVRInput.Button.SecondaryIndexTrigger))
                 {
+                    stopWatch.Stop();
                     selected = "right";
+                    response = "right";
                     return true;
                 }
                 if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger))
                 {
+                    stopWatch.Stop();
                     selected = "left";
+                    response = "left";
                     return true;
                 }
                 return false;
@@ -127,45 +148,37 @@ public class TaskController : MonoBehaviour
             if (stimulus.Contains(selected)){
                 // TestText.text = "CORRECT";
                 Debug.Log("CORRECT!!!");
+                TF = "1";
             }else{
                 // TestText.text = "MISS";
                 Debug.Log("MISS!!!");
+                TF = "0";
             }
-            
+
             // インスタンス削除
             Destroy(currentInstance);
+
+            // 反応時間
+            double RT_d = stopWatch.Elapsed.TotalMilliseconds;
+            RT = RT_d.ToString();
+
             // 選択を初期化
             selected = "init";
+
+            // csvに書き込み
+            string data = stimulus + "," + response + "," + TF + "," + RT;
+            AddData(filePath, data);
 
             // 次の刺激表示まで待機
             yield return new WaitForSeconds(WAIT_TIME);
 
             
         }
-
-        /*
-        while (cnt<STIMULI_NUM)
-        {
-            // ゲームオブジェクトを生成
-            if (currentInstance != null)
-            {
-                Destroy(currentInstance);
-            }
-
-            currentInstance = Instantiate(rightIncongruent);
-            // startTime = Time.time;
-
-            // ボタンの押下を待つ
-            yield return new WaitUntil(() => OVRInput.GetDown(OVRInput.Button.SecondaryIndexTrigger));
-            Destroy(currentInstance);
-
-
-            // 次の生成まで少し待つ（例: 1秒）
-            yield return new WaitForSeconds(1f);
-            cnt++;
-        }*/
     }
 
-
-   
+    static void AddData(string filePath, string data){
+        using (StreamWriter sw = new StreamWriter(filePath, true, Encoding.UTF8)){
+            sw.WriteLine(data);
+        }
+    }
 }
