@@ -11,9 +11,18 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScence03.unity
     guid: d76aa13d7bcab43d69f31bc5fae81c2f
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Basic.unity
     guid: 231e4f7cc9bda449eac27ed309242a55
+  - enabled: 0
+    path: Assets/Scenes/ObjectTestScene.unity
+    guid: 325e2f75c2bde4b19af67d7d32c48f78
+  - enabled: 1
+    path: Assets/Scenes/FlankerTaskScene.unity
+    guid: 9c6821efdbccb468884875840039c57e
+  - enabled: 0
+    path: Assets/Scenes/OVRPlayerControllerTestScene.unity
+    guid: d2815e8bf3b5a479cbe350c8d461acd1
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: c5f5f71d6828e430392d97c8142958f8, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: c26d5f765f75043df9b4946b10b37ab0, type: 2}
