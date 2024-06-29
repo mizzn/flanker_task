@@ -22,12 +22,13 @@ public class TaskController : MonoBehaviour
 
     //アタッチの必要なし
     private GameObject currentInstance; 
-    private int STIMULI_NUM = 10; //刺激の数，ホントは40
+    private int STIMULI_NUM = 40; //刺激の数，ホントは40
     private string[] stimuliNames = {"leftCongruent", "leftIncongruent", "rightCongruent", "rightIncongruent"};
     private float WAIT_TIME = 5f; //次の刺激までの待機時間
     private string selected = "init";
     private float cameraHeight;
     OVRCameraRig cameraRig;
+    AudioSource audioSource;
     string dateTime = "Sample";
     string dirPath;
     string filePath;
@@ -51,6 +52,9 @@ public class TaskController : MonoBehaviour
         }
         // ランダムにシャッフル
         stimuliList = stimuliList.OrderBy(a => Guid.NewGuid()).ToList();
+
+        // 音
+        audioSource = GetComponent<AudioSource>();
 
         // 保存の準備
         Debug.Log(Application.persistentDataPath);
@@ -81,6 +85,11 @@ public class TaskController : MonoBehaviour
         Debug.Log(cameraRig.centerEyeAnchor.position.y);
         Debug.Log("Application.persistentDataPath");
         Debug.Log(Application.persistentDataPath);
+
+        // if (OVRInput.GetDown(OVRInput.Button.One)){
+        //     audioSource.Play();
+        // }
+            
     }
 
     private IEnumerator RunTask(List<string> stimuliList){
@@ -106,17 +115,34 @@ public class TaskController : MonoBehaviour
             System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
 
             //名前と同じ刺激をインスタンス化
+            // if (stimulus == "leftCongruent"){
+            //     currentInstance = Instantiate(leftCongruent, new Vector3(leftCongruent.transform.position.x, cameraHeight, leftCongruent.transform.position.z), Quaternion.identity);
+            //     stopWatch.Start();
+            // } else if (stimulus == "leftIncongruent"){
+            //     currentInstance = Instantiate(leftIncongruent, new Vector3(leftIncongruent.transform.position.x, cameraHeight, leftIncongruent.transform.position.z), Quaternion.identity);
+            //     stopWatch.Start();
+            // } else if (stimulus == "rightCongruent"){
+            //     currentInstance = Instantiate(rightCongruent, new Vector3(rightCongruent.transform.position.x, cameraHeight, rightCongruent.transform.position.z), Quaternion.identity);
+            //     stopWatch.Start();
+            // } else if (stimulus == "rightIncongruent"){
+            //     currentInstance = Instantiate(rightIncongruent, new Vector3(rightIncongruent.transform.position.x, cameraHeight, rightIncongruent.transform.position.z), Quaternion.identity);
+            //     stopWatch.Start();
+            // } else{
+            //     Debug.Log("ERROR : stimuli instantiate");
+            //     yield break;
+            // }
+
             if (stimulus == "leftCongruent"){
-                currentInstance = Instantiate(leftCongruent, new Vector3(leftCongruent.transform.position.x, cameraHeight, leftCongruent.transform.position.z), Quaternion.identity);
+                currentInstance = Instantiate(leftCongruent);
                 stopWatch.Start();
             } else if (stimulus == "leftIncongruent"){
-                currentInstance = Instantiate(leftIncongruent, new Vector3(leftIncongruent.transform.position.x, cameraHeight, leftIncongruent.transform.position.z), Quaternion.identity);
+                currentInstance = Instantiate(leftIncongruent);
                 stopWatch.Start();
             } else if (stimulus == "rightCongruent"){
-                currentInstance = Instantiate(rightCongruent, new Vector3(rightCongruent.transform.position.x, cameraHeight, rightCongruent.transform.position.z), Quaternion.identity);
+                currentInstance = Instantiate(rightCongruent);
                 stopWatch.Start();
             } else if (stimulus == "rightIncongruent"){
-                currentInstance = Instantiate(rightIncongruent, new Vector3(rightIncongruent.transform.position.x, cameraHeight, rightIncongruent.transform.position.z), Quaternion.identity);
+                currentInstance = Instantiate(rightIncongruent);
                 stopWatch.Start();
             } else{
                 Debug.Log("ERROR : stimuli instantiate");
@@ -150,6 +176,8 @@ public class TaskController : MonoBehaviour
                 Debug.Log("CORRECT!!!");
                 TF = "1";
             }else{
+                // エラー音
+                audioSource.Play();
                 // TestText.text = "MISS";
                 Debug.Log("MISS!!!");
                 TF = "0";
