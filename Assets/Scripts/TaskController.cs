@@ -28,6 +28,7 @@ public class TaskController : MonoBehaviour
     private string selected = "init";
     private float cameraHeight;
     OVRCameraRig cameraRig;
+    AudioSource audioSource;
     string dateTime = "Sample";
     string dirPath;
     string filePath;
@@ -51,6 +52,9 @@ public class TaskController : MonoBehaviour
         }
         // ランダムにシャッフル
         stimuliList = stimuliList.OrderBy(a => Guid.NewGuid()).ToList();
+
+        // 音
+        audioSource = GetComponent<AudioSource>();
 
         // 保存の準備
         Debug.Log(Application.persistentDataPath);
@@ -81,6 +85,11 @@ public class TaskController : MonoBehaviour
         Debug.Log(cameraRig.centerEyeAnchor.position.y);
         Debug.Log("Application.persistentDataPath");
         Debug.Log(Application.persistentDataPath);
+
+        // if (OVRInput.GetDown(OVRInput.Button.One)){
+        //     audioSource.Play();
+        // }
+            
     }
 
     private IEnumerator RunTask(List<string> stimuliList){
@@ -167,6 +176,8 @@ public class TaskController : MonoBehaviour
                 Debug.Log("CORRECT!!!");
                 TF = "1";
             }else{
+                // エラー音
+                audioSource.Play();
                 // TestText.text = "MISS";
                 Debug.Log("MISS!!!");
                 TF = "0";
