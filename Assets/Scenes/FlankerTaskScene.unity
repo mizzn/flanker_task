@@ -319,6 +319,7 @@ MonoBehaviour:
   rightCongruent: {fileID: 8912723617436691105, guid: eeb8771a70bd748feaf891bbcba2cc9a, type: 3}
   rightIncongruent: {fileID: 3193825513747124394, guid: 60e88f0c4ee3347db8dc5724a65b4dfc, type: 3}
   cameraRigObject: {fileID: 1022979394}
+  fileName: controll
 --- !u!4 &228355180
 Transform:
   m_ObjectHideFlags: 0
