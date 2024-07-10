@@ -314,11 +314,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4e36ffbb15b44d1082f607d78b0e029, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftCongruent: {fileID: 8151762832854767999, guid: 46dba4249b94a44969fcd88ae5430035, type: 3}
-  leftIncongruent: {fileID: 3760367837230619291, guid: 3662164c983ab4d848b65da6b5f8ef96, type: 3}
-  rightCongruent: {fileID: 8912723617436691105, guid: eeb8771a70bd748feaf891bbcba2cc9a, type: 3}
-  rightIncongruent: {fileID: 3193825513747124394, guid: 60e88f0c4ee3347db8dc5724a65b4dfc, type: 3}
+  leftCongruent: {fileID: 2061989159747298288, guid: 6bfeb8e3538794ed1acf3d1fdaa1bdc7, type: 3}
+  leftIncongruent: {fileID: 5180915417105553876, guid: eb79c116386b64b2380b9515c0bdc051, type: 3}
+  rightCongruent: {fileID: 6852600035173972407, guid: 3f21da500962f44f981c01356e24dbf1, type: 3}
+  rightIncongruent: {fileID: 2677427740938210706, guid: 768c6054fc5ac4c979d7ffa4d21837b5, type: 3}
   cameraRigObject: {fileID: 1022979394}
+  fileName: 2D
 --- !u!4 &228355180
 Transform:
   m_ObjectHideFlags: 0
