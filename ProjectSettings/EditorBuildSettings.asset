@@ -26,10 +26,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/FarFlankerTask.unity
     guid: 79f3e1eb43ffd49a88ae4bae03ce6e8c
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/BarrierFlankerTask.unity
     guid: 34b6f876cdba8452ba322db6b5986291
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/2DFlankerTask.unity
     guid: b9ccba1916ac644feb75d3efd407c68f
   m_configObjects:

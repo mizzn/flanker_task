@@ -20,6 +20,11 @@ public class Capture2DImage : MonoBehaviour
         }else{
             Debug.Log("Camera component found.");
         }
+        
+        if (_camera.targetTexture == null)
+        {
+            _camera.targetTexture = new RenderTexture(Screen.width, Screen.height, 24);
+        }
 
         var tex = Get2DImage();
         SaveImage(dirPath, fileName, tex);
