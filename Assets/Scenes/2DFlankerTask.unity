@@ -960,7 +960,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 488160, guid: d9809c5e8418bb047bf2c8ba1d1a2cec, type: 3}
   m_PrefabInstance: {fileID: 1579670726}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &1966753113
+--- !u!1001 &1705145572
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -974,7 +974,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5181314063041901299, guid: dd1cc0fc251e14efe9d23b70e0e4bfb6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.36
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5181314063041901299, guid: dd1cc0fc251e14efe9d23b70e0e4bfb6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1094,4 +1094,4 @@ SceneRoots:
   - {fileID: 1022979390}
   - {fileID: 228355180}
   - {fileID: 1100482519261085182}
-  - {fileID: 1966753113}
+  - {fileID: 1705145572}
