@@ -18,6 +18,7 @@ public class TaskController : MonoBehaviour
     public GameObject rightCongruent; 
     public GameObject rightIncongruent; 
     public GameObject cameraRigObject;
+    public string fileName;
     
 
     //アタッチの必要なし
@@ -32,7 +33,6 @@ public class TaskController : MonoBehaviour
     string dateTime = "Sample";
     string dirPath;
     string filePath;
-    string fileName = "controll";
     private StreamWriter streamWriter;
 
     

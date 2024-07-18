@@ -14,7 +14,7 @@ public class ScaleObject : MonoBehaviour
         Bounds bounds = mesh.bounds;
         initialScale = bounds.size;
 
-        Debug.Log("Initial Scale x: " + initialScale);
+        Debug.Log("Initial Scale: " + initialScale);
     }
 
     // Update is called once per frame
