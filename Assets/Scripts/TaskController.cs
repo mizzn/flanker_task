@@ -8,6 +8,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 
 public class TaskController : MonoBehaviour
@@ -23,22 +24,26 @@ public class TaskController : MonoBehaviour
 
     //アタッチの必要なし
     private GameObject currentInstance; 
-    private int STIMULI_NUM = 40; //刺激の数，ホントは40
+    private int STIMULI_NUM = 5; //刺激の数，ホントは40
     private string[] stimuliNames = {"leftCongruent", "leftIncongruent", "rightCongruent", "rightIncongruent"};
     private float WAIT_TIME = 5f; //次の刺激までの待機時間
     private string selected = "init";
     private float cameraHeight;
     OVRCameraRig cameraRig;
     AudioSource audioSource;
-    string dateTime = "Sample";
+    // string dateTime = "Sample";
     string dirPath;
     string filePath;
     private StreamWriter streamWriter;
+    private bool endFlag = false;
 
     
     // Start is called before the first frame update
     void Start()
     {
+        // 遷移してきたら消す
+        RemoveScene();
+
         // カメラの高さ
         cameraRig = cameraRigObject.GetComponent<OVRCameraRig>();
         cameraHeight = cameraRig.centerEyeAnchor.position.y;
@@ -57,21 +62,26 @@ public class TaskController : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
 
         // 保存の準備
-        Debug.Log(Application.persistentDataPath);
-        dirPath = Application.persistentDataPath + "/" + dateTime;
+        // Debug.Log(Application.persistentDataPath);
+        dirPath = Application.persistentDataPath + "/" + Data.ID;
 
-        // ディレクトリの存在確認，デバッグ用かな
+        // ディレクトリの存在確認
         if(!Directory.Exists(dirPath)){
-            Directory.CreateDirectory(dirPath); //なかったらつくる
+            // Directory.CreateDirectory(dirPath); //なかったらつくる
+            Debug.Log("No Directory");
         }
         
-        filePath = dirPath + "/" + fileName + ".csv";
+        filePath = dirPath + "/" + Data.ID + fileName + ".csv";
         // ファイルの存在確認
         if(!File.Exists(filePath)){
-            File.Create(filePath); //なかったら作る
+            using (FileStream fs = File.Create(filePath)){
+                // 何もしない
+            }
         }
         // ラベルを追加
         AddData(filePath, "stimulus, response, TF, RT"); 
+
+        PrintData(); // debug
 
         IEnumerator runTask = RunTask(stimuliList);
         StartCoroutine(runTask);
@@ -81,10 +91,10 @@ public class TaskController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("cameraRig.centerEyeAnchor.position.y :");
-        Debug.Log(cameraRig.centerEyeAnchor.position.y);
-        Debug.Log("Application.persistentDataPath");
-        Debug.Log(Application.persistentDataPath);
+        // Debug.Log("cameraRig.centerEyeAnchor.position.y :");
+        // Debug.Log(cameraRig.centerEyeAnchor.position.y);
+        // Debug.Log("Application.persistentDataPath");
+        // Debug.Log(Application.persistentDataPath);
 
         // if (OVRInput.GetDown(OVRInput.Button.One)){
         //     audioSource.Play();
@@ -97,8 +107,8 @@ public class TaskController : MonoBehaviour
         // Debug.Log(string.Join(",", stimuliList));
         
         for(int i = 0; i < STIMULI_NUM; i++){
-            Debug.Log(i);
-            Debug.Log(stimuliList[i]); //なぜか正しく動作しないときがある．原因不明
+            // Debug.Log(i);
+            // Debug.Log(stimuliList[i]); //なぜか正しく動作しないときがある．原因不明
 
             // csv書き込み用の変数
             string stimulus = stimuliList[i];
@@ -113,24 +123,6 @@ public class TaskController : MonoBehaviour
             }
 
             System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
-
-            //名前と同じ刺激をインスタンス化
-            // if (stimulus == "leftCongruent"){
-            //     currentInstance = Instantiate(leftCongruent, new Vector3(leftCongruent.transform.position.x, cameraHeight, leftCongruent.transform.position.z), Quaternion.identity);
-            //     stopWatch.Start();
-            // } else if (stimulus == "leftIncongruent"){
-            //     currentInstance = Instantiate(leftIncongruent, new Vector3(leftIncongruent.transform.position.x, cameraHeight, leftIncongruent.transform.position.z), Quaternion.identity);
-            //     stopWatch.Start();
-            // } else if (stimulus == "rightCongruent"){
-            //     currentInstance = Instantiate(rightCongruent, new Vector3(rightCongruent.transform.position.x, cameraHeight, rightCongruent.transform.position.z), Quaternion.identity);
-            //     stopWatch.Start();
-            // } else if (stimulus == "rightIncongruent"){
-            //     currentInstance = Instantiate(rightIncongruent, new Vector3(rightIncongruent.transform.position.x, cameraHeight, rightIncongruent.transform.position.z), Quaternion.identity);
-            //     stopWatch.Start();
-            // } else{
-            //     Debug.Log("ERROR : stimuli instantiate");
-            //     yield break;
-            // }
 
             if (stimulus == "leftCongruent"){
                 currentInstance = Instantiate(leftCongruent);
@@ -202,11 +194,38 @@ public class TaskController : MonoBehaviour
 
             
         }
+    
+        if(endFlag){
+            SceneManager.LoadScene("EndScene");
+        }else{
+            SceneManager.LoadScene(Data.order_tmp[0]);
+        }
     }
 
     static void AddData(string filePath, string data){
         using (StreamWriter sw = new StreamWriter(filePath, true, Encoding.UTF8)){
             sw.WriteLine(data);
         }
+    }
+    void RemoveScene(){
+        if (Data.order_tmp.Count == 1){
+            // このタスクが最後のとき
+            endFlag = true;
+        }else{
+            Data.order_tmp.RemoveAt(0);
+            Debug.Log("remove index 0 scene");
+            Debug.Log(string.Join(",", Data.order_tmp));
+        }
+    }
+
+    void PrintData(){
+        Debug.Log(Data.age);
+        Debug.Log(Data.sex);
+        Debug.Log(Data.dominantHand);
+        Debug.Log(Data.vision);
+        Debug.Log(Data.ID);
+        Debug.Log(string.Join(",", Data.order));
+        Debug.Log(string.Join(",", Data.order_tmp));
+        
     }
 }
