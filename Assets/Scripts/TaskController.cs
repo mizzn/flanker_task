@@ -20,7 +20,7 @@ public class TaskController : MonoBehaviour
     public GameObject rightIncongruent; 
     public GameObject cameraRigObject;
     public string fileName;
-    
+    AudioSource audioSource;
 
     //アタッチの必要なし
     private GameObject currentInstance; 
@@ -30,7 +30,7 @@ public class TaskController : MonoBehaviour
     private string selected = "init";
     private float cameraHeight;
     OVRCameraRig cameraRig;
-    AudioSource audioSource;
+
     // string dateTime = "Sample";
     string dirPath;
     string filePath;
@@ -219,10 +219,10 @@ public class TaskController : MonoBehaviour
     }
 
     void PrintData(){
-        Debug.Log(Data.age);
-        Debug.Log(Data.sex);
-        Debug.Log(Data.dominantHand);
-        Debug.Log(Data.vision);
+        // Debug.Log(Data.age);
+        // Debug.Log(Data.sex);
+        // Debug.Log(Data.dominantHand);
+        // Debug.Log(Data.vision);
         Debug.Log(Data.ID);
         Debug.Log(string.Join(",", Data.order));
         Debug.Log(string.Join(",", Data.order_tmp));
