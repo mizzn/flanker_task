@@ -340,7 +340,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85de4ac60044cd84889bb6e363a6cfa3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prevNode: {fileID: 1919241126532244408}
+  prevNode: {fileID: 0}
   isFirstNode: 0
   isPointLightEn: 1
   slowProgress: 0
@@ -417,7 +417,6 @@ GameObject:
   - component: {fileID: 1919241126532244412}
   - component: {fileID: 1919241126532244411}
   - component: {fileID: 1919241126532244413}
-  - component: {fileID: 1919241126532244408}
   m_Layer: 3
   m_Name: LED_Blue_1
   m_TagString: Untagged
@@ -490,22 +489,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &1919241126532244408
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1919241126532244415}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85de4ac60044cd84889bb6e363a6cfa3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  prevNode: {fileID: 0}
-  isFirstNode: 1
-  isPointLightEn: 0
-  slowProgress: 0
 --- !u!1 &1919241126564348254
 GameObject:
   m_ObjectHideFlags: 0

@@ -21,7 +21,7 @@ public class MyLEDNode : MonoBehaviour
     private Renderer rend = null;
 
     // Emitted light intensity parameters.
-    private float intensity = 0;
+    private float intensity = 1.0f; // 最初から最大の光
     private float minIntensity = 0;
     private float maxIntensity = 1.0f;
     private float onTime = 0;
@@ -32,7 +32,8 @@ public class MyLEDNode : MonoBehaviour
     private float offTimerSpeed = 20.0f;
     // Emitted light increase/decrease controls.
     private enum LightState { INCR, DECR, IDLE}
-    private LightState lightState = LightState.IDLE;
+    // private LightState lightState = LightState.IDLE;
+    private LightState lightState = LightState.INCR; //最初から光る
 
     void Start()
     {
@@ -69,12 +70,12 @@ public class MyLEDNode : MonoBehaviour
     // Gradually increase intensity level up to the maximum-level defined in GUI.
     private void IntensityIncrease()
     {
-        if (!slowProgress)
-        {
-            if (nextStart == false)
-                nextStart = true;
-        }
-
+        // if (!slowProgress)
+        // {
+        //     if (nextStart == false)
+        //         nextStart = true;
+        // }
+        nextStart = true;
         intensity = maxIntensity;
 
         // If point light is enabled, light it up.
@@ -82,15 +83,15 @@ public class MyLEDNode : MonoBehaviour
             pointLight.enabled = true;
 
         // If ON timer handn't been reached yet
-        if (onTime < maxOnTime)
-            onTime += onTimerSpeed * Time.deltaTime;
+        // if (onTime < maxOnTime)
+        //     onTime += onTimerSpeed * Time.deltaTime;
         // ON timer had been reached.
-        else
-        {
-            onTime = 0;
-            // Start decreasing intensity.
-            lightState = LightState.DECR;
-        }
+        // else
+        // {
+        //     onTime = 0;
+        //     // Start decreasing intensity.
+        //     lightState = LightState.DECR;
+        // }
     }
 
     // Gradually decrease intensity level down to 0.
@@ -121,37 +122,44 @@ public class MyLEDNode : MonoBehaviour
     // Light idles until signaled to do otherwise.
     private void LightIdle()
     {
-        if (slowProgress)
-        {
-            if (nextStart == true)
-                nextStart = false;
+        nextStart = true;
+        intensity = maxIntensity;
+
+        if (isPointLightEn){
+            pointLight.enabled = true;
         }
 
+        // if (slowProgress)
+        // {
+        //     if (nextStart == true)
+        //         nextStart = false;
+        // }
+
         // If there is a previous linked node
-        if (prevNode != null)
-        {
-            if (prevNode.nextStart)
-            {
-                // Start increasing light intensity.
-                lightState = LightState.INCR;
-            }
-        }
+        // if (prevNode != null)
+        // {
+        //     if (prevNode.nextStart)
+        //     {
+        //         // Start increasing light intensity.
+        //         lightState = LightState.INCR;
+        //     }
+        // }
         // If first node in the chain
-        else if (isFirstNode)
-        {
-            // If max Idle time wasn't reached yet
-            if (offTime < maxOffTime)
-                offTime += offTimerSpeed * Time.deltaTime;
-            else
-            {
-                offTime = 0;
-                // Start increasing light intensity.
-                lightState = LightState.INCR;
-                // Light-up the next node in chain.
-                if (nextStart == false)
-                    nextStart = true;
-            }
-        }
+        // else if (isFirstNode)
+        // {
+        //     // If max Idle time wasn't reached yet
+        //     if (offTime < maxOffTime)
+        //         offTime += offTimerSpeed * Time.deltaTime;
+        //     else
+        //     {
+        //         offTime = 0;
+        //         // Start increasing light intensity.
+        //         lightState = LightState.INCR;
+        //         // Light-up the next node in chain.
+        //         if (nextStart == false)
+        //             nextStart = true;
+        //     }
+        // }
     }
 
     // Updates the calculated LED color and intensity level.
