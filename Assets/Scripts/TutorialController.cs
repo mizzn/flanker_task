@@ -204,7 +204,7 @@ public class TutorialController : MonoBehaviour
     }
 
     void next(){
-        // SceneManager.LoadScene(Data.order_tmp[0]);
-        SceneManager.LoadScene("EndScene"); // Debug
+        SceneManager.LoadScene(Data.order_tmp[0]);
+        // SceneManager.LoadScene("EndScene"); // Debug
     }
 }
