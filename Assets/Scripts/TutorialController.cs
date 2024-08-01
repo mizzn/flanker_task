@@ -17,6 +17,7 @@ public class TutorialController : MonoBehaviour
     public GameObject FarRightIncongruent; 
     public GameObject barrier;
     AudioSource audioSource;
+    public GameObject blind;
 
     private float WAIT_TIME = 5f; //次の刺激までの待機時間
     private GameObject currentInstance; 
@@ -26,11 +27,9 @@ public class TutorialController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        blind.SetActive(false);
+
         //まずは個人のデータを初期化 値は適当
-        // Data.age = 20;
-        // Data.sex = "F";
-        // Data.dominantHand = "L";
-        // Data.vision = "normal";
         Data.ID = MakeID();
         Data.Date = DateTime.Now.ToString("yyyyMMddHHmmss");
         Debug.Log(Data.ID);
@@ -51,6 +50,7 @@ public class TutorialController : MonoBehaviour
 
         IEnumerator runTutorial = RunTutorial(stimuliList_A, stimuliList_B);
         StartCoroutine(runTutorial);
+        // StartCoroutine(TestBlind());
     }
 
     // Update is called once per frame
@@ -73,12 +73,16 @@ public class TutorialController : MonoBehaviour
 
             if (stimulus == "leftCongruent"){
                 currentInstance = Instantiate(leftCongruent);
+                blind.SetActive(false); // 目隠しはずす
             } else if (stimulus == "leftIncongruent"){
                 currentInstance = Instantiate(leftIncongruent);
+                blind.SetActive(false);
             } else if (stimulus == "rightCongruent"){
                 currentInstance = Instantiate(rightCongruent);
+                blind.SetActive(false);
             } else if (stimulus == "rightIncongruent"){
                 currentInstance = Instantiate(rightIncongruent);
+                blind.SetActive(false);
             } else{
                 Debug.Log("ERROR : stimuli instantiate");
                 yield break;
@@ -110,6 +114,8 @@ public class TutorialController : MonoBehaviour
                 Debug.Log("MISS!!!");
             }
 
+            // 目隠し
+            blind.SetActive(true);
             // インスタンス削除
             Destroy(currentInstance);
 
@@ -137,12 +143,16 @@ public class TutorialController : MonoBehaviour
 
             if (stimulus == "twodleftCongruent"){
                 currentInstance = Instantiate(twodLeftCongruent);
+                blind.SetActive(false);
             } else if (stimulus == "leftIncongruent"){
                 currentInstance = Instantiate(leftIncongruent);
+                blind.SetActive(false);
             } else if (stimulus == "rightCongruent"){
                 currentInstance = Instantiate(rightCongruent);
+                blind.SetActive(false);
             } else if (stimulus == "FarrightIncongruent"){
                 currentInstance = Instantiate(FarRightIncongruent);
+                blind.SetActive(false);
             } else{
                 Debug.Log("ERROR : stimuli instantiate");
                 yield break;
@@ -176,6 +186,7 @@ public class TutorialController : MonoBehaviour
                 Debug.Log("MISS!!!");
             }
 
+            blind.SetActive(true);
             // インスタンス削除
             Destroy(currentInstance);
             if (i == 2){
@@ -206,5 +217,12 @@ public class TutorialController : MonoBehaviour
     void next(){
         SceneManager.LoadScene(Data.order_tmp[0]);
         // SceneManager.LoadScene("EndScene"); // Debug
+    }
+
+    IEnumerator TestBlind()
+    {
+        blind.SetActive(true); // パネルを表示
+        yield return new WaitForSeconds(10f); // 2秒待つ
+        blind.SetActive(false); // パネルを非表示にする
     }
 }
