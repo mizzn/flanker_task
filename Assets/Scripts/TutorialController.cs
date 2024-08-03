@@ -19,7 +19,7 @@ public class TutorialController : MonoBehaviour
     AudioSource audioSource;
     public GameObject blind;
 
-    private float WAIT_TIME = 5f; //次の刺激までの待機時間
+    private float WAIT_TIME = 1f; //次の刺激までの待機時間
     private GameObject currentInstance; 
     private GameObject barrierInstance;
     private string selected = "init";
