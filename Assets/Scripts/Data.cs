@@ -13,4 +13,5 @@ public static class Data
     public static string Date = "None";
     public static List<string> order = new List<string>() {"FlankerTaskScene", "FarFlankerTask", "BarrierFlankerTask", "2DFlankerTask"};
     public static List<string> order_tmp;
+    public static int taskCount = 0;
 }

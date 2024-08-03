@@ -41,7 +41,18 @@ public class IntervalController : MonoBehaviour
         });
 
         blind.SetActive(true);
+        Debug.Log("Finish interval");
         SceneManager.LoadScene(Data.order_tmp[0]);
     }
 
+    private void PrintData(){
+        // Debug.Log(Data.age);
+        // Debug.Log(Data.sex);
+        // Debug.Log(Data.dominantHand);
+        // Debug.Log(Data.vision);
+        Debug.Log(Data.ID);
+        Debug.Log(string.Join(",", Data.order));
+        Debug.Log(string.Join(",", Data.order_tmp));
+        
+    }
 }
