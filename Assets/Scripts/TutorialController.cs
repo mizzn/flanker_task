@@ -206,8 +206,8 @@ public class TutorialController : MonoBehaviour
     string MakeID(){
         List<char> id = new List<char>();
         System.Random random = new System.Random();
-        string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        for(int i = 0; i < 5; i++){
+        string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        for(int i = 0; i < 4; i++){
             int num = random.Next(chars.Length);
             id.Add(chars[num]);
         }
