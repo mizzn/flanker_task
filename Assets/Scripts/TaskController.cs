@@ -21,12 +21,13 @@ public class TaskController : MonoBehaviour
     public GameObject cameraRigObject;
     public string fileName;
     AudioSource audioSource;
+    public GameObject blind;
 
     //アタッチの必要なし
     private GameObject currentInstance; 
-    private int STIMULI_NUM = 40; //刺激の数，ホントは40
+    private int STIMULI_NUM = 5; //刺激の数，ホントは40
     private string[] stimuliNames = {"leftCongruent", "leftIncongruent", "rightCongruent", "rightIncongruent"};
-    private float WAIT_TIME = 5f; //次の刺激までの待機時間
+    private float WAIT_TIME = 1f; //次の刺激までの待機時間
     private string selected = "init";
     private float cameraHeight;
     OVRCameraRig cameraRig;
@@ -41,6 +42,8 @@ public class TaskController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        blind.SetActive(false);
+
         // 遷移してきたら消す
         RemoveScene();
 
@@ -126,15 +129,19 @@ public class TaskController : MonoBehaviour
 
             if (stimulus == "leftCongruent"){
                 currentInstance = Instantiate(leftCongruent);
+                blind.SetActive(false); // 目隠しはずす
                 stopWatch.Start();
             } else if (stimulus == "leftIncongruent"){
                 currentInstance = Instantiate(leftIncongruent);
+                blind.SetActive(false);
                 stopWatch.Start();
             } else if (stimulus == "rightCongruent"){
                 currentInstance = Instantiate(rightCongruent);
+                blind.SetActive(false);
                 stopWatch.Start();
             } else if (stimulus == "rightIncongruent"){
                 currentInstance = Instantiate(rightIncongruent);
+                blind.SetActive(false);
                 stopWatch.Start();
             } else{
                 Debug.Log("ERROR : stimuli instantiate");
@@ -175,6 +182,8 @@ public class TaskController : MonoBehaviour
                 TF = "0";
             }
 
+            // 目隠し
+            blind.SetActive(true);
             // インスタンス削除
             Destroy(currentInstance);
 
