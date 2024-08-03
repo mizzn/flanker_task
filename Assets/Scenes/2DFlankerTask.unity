@@ -584,7 +584,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3787370259544566569, guid: 767cda9b616d84d9b91987b8c97fa3a7, type: 3}
       propertyPath: m_Name
-      value: Canvas
+      value: Blinds
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -865,7 +865,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7265888644049532904, guid: 908308431c18f49f186981bc95fd1a36, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.9499996
+      value: 3.787
       objectReference: {fileID: 0}
     - target: {fileID: 7265888644049532904, guid: 908308431c18f49f186981bc95fd1a36, type: 3}
       propertyPath: m_LocalPosition.z
