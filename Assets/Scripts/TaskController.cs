@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 
 public class TaskController : MonoBehaviour
@@ -22,6 +23,8 @@ public class TaskController : MonoBehaviour
     public string fileName;
     AudioSource audioSource;
     public GameObject blind;
+    public TextMeshPro taskCountText;
+    public TextMeshPro stimuliCountText;
 
     //アタッチの必要なし
     private GameObject currentInstance; 
@@ -37,11 +40,16 @@ public class TaskController : MonoBehaviour
     string filePath;
     private StreamWriter streamWriter;
     private bool endFlag = false;
+    int stimuliCount = 1;
 
     
     // Start is called before the first frame update
     void Start()
     {
+        // 現在のタスク表示
+        Data.taskCount += 1;
+        taskCountText.text = Data.taskCount + "/4";
+
         blind.SetActive(false);
 
         // 遷移してきたら消す
@@ -187,6 +195,9 @@ public class TaskController : MonoBehaviour
             // インスタンス削除
             Destroy(currentInstance);
 
+            stimuliCount += 1;
+            stimuliCountText.text = stimuliCount + "/40";
+
             // 反応時間
             double RT_d = stopWatch.Elapsed.TotalMilliseconds;
             RT = RT_d.ToString();
@@ -235,6 +246,6 @@ public class TaskController : MonoBehaviour
         Debug.Log(Data.ID);
         Debug.Log(string.Join(",", Data.order));
         Debug.Log(string.Join(",", Data.order_tmp));
-        
     }
+
 }

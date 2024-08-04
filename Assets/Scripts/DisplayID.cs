@@ -5,7 +5,7 @@ using TMPro;
 
 public class DisplayID : MonoBehaviour
 {
-    public TextMeshProUGUI id;
+    public TextMeshPro id;
 
     // Start is called before the first frame update
     void Start()
