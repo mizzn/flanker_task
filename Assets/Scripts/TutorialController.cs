@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using System.Linq;
 using System;
 using System.IO;
+using TMPro;
 
 public class TutorialController : MonoBehaviour
 {
@@ -18,15 +19,20 @@ public class TutorialController : MonoBehaviour
     public GameObject barrier;
     AudioSource audioSource;
     public GameObject blind;
+    // public TextMeshPro taskCountText;
+    public TextMeshPro stimuliCountText;
 
     private float WAIT_TIME = 1f; //次の刺激までの待機時間
     private GameObject currentInstance; 
     private GameObject barrierInstance;
     private string selected = "init";
+    // private int taskCount = 1;
+    private int stimuliCount = 1;
 
     // Start is called before the first frame update
     void Start()
     {
+        // taskCountText.text = taskCount + "/2";
         blind.SetActive(false);
 
         //まずは個人のデータを初期化 値は適当
@@ -119,6 +125,9 @@ public class TutorialController : MonoBehaviour
             // インスタンス削除
             Destroy(currentInstance);
 
+            stimuliCount += 1;
+            stimuliCountText.text = stimuliCount + "/8";
+
             // 選択を初期化
             selected = "init";
 
@@ -192,6 +201,9 @@ public class TutorialController : MonoBehaviour
             if (i == 2){
                 Destroy(barrierInstance);
             }
+
+            stimuliCount += 1;
+            stimuliCountText.text = stimuliCount + "/8";
 
             // 選択を初期化
             selected = "init";

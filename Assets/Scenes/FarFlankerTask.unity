@@ -227,8 +227,8 @@ MonoBehaviour:
   cameraRigObject: {fileID: 1022979394}
   fileName: Far
   blind: {fileID: 380294211}
-  taskCountText: {fileID: 0}
-  stimuliCountText: {fileID: 0}
+  taskCountText: {fileID: 572735573}
+  stimuliCountText: {fileID: 1481115981}
 --- !u!4 &228355180
 Transform:
   m_ObjectHideFlags: 0
@@ -755,6 +755,17 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 34be68bb86808456398e96c9d7325f8f, type: 3}
+--- !u!114 &572735573 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5825664368739551862, guid: 34be68bb86808456398e96c9d7325f8f, type: 3}
+  m_PrefabInstance: {fileID: 572735572}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &642318519
 GameObject:
   m_ObjectHideFlags: 0
@@ -1528,6 +1539,17 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 5e66d563ab3874d29a76feb39c9081db, type: 3}
+--- !u!114 &1481115981 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 744333084606915041, guid: 5e66d563ab3874d29a76feb39c9081db, type: 3}
+  m_PrefabInstance: {fileID: 1481115980}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1549290399
 PrefabInstance:
   m_ObjectHideFlags: 0

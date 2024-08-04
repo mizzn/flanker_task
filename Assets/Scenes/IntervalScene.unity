@@ -2589,6 +2589,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 744333084606915041, guid: 5e66d563ab3874d29a76feb39c9081db, type: 3}
+      propertyPath: m_text
+      value: 0/40
+      objectReference: {fileID: 0}
     - target: {fileID: 810813198419882567, guid: 5e66d563ab3874d29a76feb39c9081db, type: 3}
       propertyPath: m_Name
       value: StimuliCountText

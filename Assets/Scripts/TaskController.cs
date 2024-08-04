@@ -246,7 +246,6 @@ public class TaskController : MonoBehaviour
         Debug.Log(Data.ID);
         Debug.Log(string.Join(",", Data.order));
         Debug.Log(string.Join(",", Data.order_tmp));
-        
     }
 
 }

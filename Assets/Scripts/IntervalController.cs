@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class IntervalController : MonoBehaviour
 {
     public GameObject blind;
+    private float WAIT_TIME = 1f;
 
     // Start is called before the first frame update
     void Start()
@@ -42,6 +43,8 @@ public class IntervalController : MonoBehaviour
 
         blind.SetActive(true);
         Debug.Log("Finish interval");
+
+        yield return new WaitForSeconds(WAIT_TIME);
         SceneManager.LoadScene(Data.order_tmp[0]);
     }
 
