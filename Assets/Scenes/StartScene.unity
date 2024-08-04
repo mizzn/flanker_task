@@ -834,7 +834,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4776798106057566123, guid: e12f5aa59adef4ed183b7973784fd9c3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.035
       objectReference: {fileID: 0}
     - target: {fileID: 4776798106057566123, guid: e12f5aa59adef4ed183b7973784fd9c3, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1059,7 +1059,7 @@ MonoBehaviour:
   rightIncongruent: {fileID: 3193825513747124394, guid: 60e88f0c4ee3347db8dc5724a65b4dfc, type: 3}
   twodLeftCongruent: {fileID: 2061989159747298288, guid: 6bfeb8e3538794ed1acf3d1fdaa1bdc7, type: 3}
   FarRightIncongruent: {fileID: 3193825513747124394, guid: ea8035fa6ea644d5e8b1f2f948660f95, type: 3}
-  barrier: {fileID: 2791702520147971566, guid: 2e3fc9dae0c724677b5b949b6e8b7cc3, type: 3}
+  barrier: {fileID: 7726186462706715386, guid: 87571c3bbe69146238e14176a4baf2a4, type: 3}
   blind: {fileID: 396401901}
   stimuliCountText: {fileID: 1762003353}
 --- !u!82 &1004197024
