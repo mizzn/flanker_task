@@ -28,7 +28,7 @@ public class TaskController : MonoBehaviour
 
     //アタッチの必要なし
     private GameObject currentInstance; 
-    private int STIMULI_NUM = 5; //刺激の数，ホントは40
+    private int STIMULI_NUM = 40; //刺激の数，ホントは40
     private string[] stimuliNames = {"leftCongruent", "leftIncongruent", "rightCongruent", "rightIncongruent"};
     private float WAIT_TIME = 1f; //次の刺激までの待機時間
     private string selected = "init";

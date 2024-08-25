@@ -22,8 +22,8 @@ public class SaveData : MonoBehaviour
         string order = string.Join(",", Data.order);
 
         //　ラベル
-        AddData(filePath, "ID, Date, order, TotalTime"); 
-        string data = Data.ID + "," + Data.Date + "," + order + "," + totalTime;
+        AddData(filePath, "ID, Date, TotalTime, order"); 
+        string data = Data.ID + "," + Data.Date + "," + totalTime + "," + order;
         AddData(filePath, data); 
     }
 
