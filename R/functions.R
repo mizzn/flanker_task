@@ -17,11 +17,14 @@ remove_unnecessary_data = function(data){
   # print(ave)
   # print(sd)
   
+  # print((ave - 2 * sd))
+  # print((ave + 2 * sd))
+  
   # 離れたやつを除く
   filtered_data = data[(ave - 2 * sd) <= data$RT & data$RT <= (ave + 2 * sd),]
   
   # 正解データのみ
-  filtered_data = data[data$TF == 1,]
+  filtered_data = filtered_data[filtered_data$TF == 1,]
   
   return(filtered_data)
 }
@@ -36,3 +39,18 @@ add_row = function(df, displayformat, incongruency, RT_ave){
   return(df)
 }
 
+get_display_format = function(file_name){
+  if(file_name == "controll"){
+    display_format = "VR Object"
+  }
+  else if(file_name == "2D"){
+    display_format = "2D Object"
+  }else if(file_name == "barrier"){
+    display_format = "VR Object with barrier"
+  }else if(file_name == "Far"){
+    display_format = "VR Object with distance"
+  }else{
+    display_format = "ERROR"
+  }
+  return(display_format)
+}
