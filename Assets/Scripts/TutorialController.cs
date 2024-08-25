@@ -32,6 +32,7 @@ public class TutorialController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Data.sw.Start();
         // taskCountText.text = taskCount + "/2";
         blind.SetActive(false);
 
