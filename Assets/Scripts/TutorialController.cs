@@ -6,6 +6,7 @@ using System.Linq;
 using System;
 using System.IO;
 using TMPro;
+using Oculus.Interaction.Input;
 
 public class TutorialController : MonoBehaviour
 {
@@ -217,15 +218,65 @@ public class TutorialController : MonoBehaviour
     }
 
     string MakeID(){
-        List<char> id = new List<char>();
-        System.Random random = new System.Random();
-        string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        for(int i = 0; i < 4; i++){
-            int num = random.Next(chars.Length);
-            id.Add(chars[num]);
+        // パス指定
+        string path = Application.persistentDataPath + "/IDs.csv";
+        // 読み込み
+        List<string[]> ids = ReadCSV(path);
+        string id = "";
+        bool isUpdated = false; //更新あったときのフラグ
+
+        // 1行目からみていく
+        for (int row = 1; row < ids.Count; row++) {
+            if (ids[row][1] == "0"){
+                // usedじゃなかったらid取得
+                id = ids[row][0];
+                ids[row][1] = "1"; // USEDを1に更新
+                isUpdated = true;
+                break; // 最初のマッチで停止
+            }
         }
-        return string.Join("", id);
+
+        // 更新があった場合、CSVファイルに書き戻す
+        if (isUpdated){
+            WriteCSV(path, ids);
+        }
+        return id;
     }
+
+    List<string[]> ReadCSV(string path){
+        List<string[]> data = new List<string[]>();
+
+        try{
+            using (StreamReader sr = new StreamReader(path)){
+                string line;
+                while ((line = sr.ReadLine()) != null){
+                    string[] values = line.Split(',');
+                    data.Add(values);
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            Debug.LogError("ReadCSV ERROR: " + e.Message);
+        }
+
+        return data;
+    }
+
+    void WriteCSV(string path, List<string[]> data){
+        try{
+            using (StreamWriter sw = new StreamWriter(path)){
+                foreach (var line in data){
+                    sw.WriteLine(string.Join(",", line));
+                }
+            }
+            Debug.Log("Update CSV");
+        }
+        catch (IOException e){
+            Debug.LogError("WriteCSV ERROR: " + e.Message);
+        }
+    }
+
 
     void next(){
         SceneManager.LoadScene("IntervalScene");
