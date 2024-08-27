@@ -24,7 +24,7 @@ public class TaskController : MonoBehaviour
     AudioSource audioSource;
     public GameObject blind;
     public TextMeshPro taskCountText;
-    public TextMeshPro stimuliCountText;
+    // public TextMeshPro stimuliCountText;
 
     //アタッチの必要なし
     private GameObject currentInstance; 
@@ -196,7 +196,7 @@ public class TaskController : MonoBehaviour
             Destroy(currentInstance);
 
             stimuliCount += 1;
-            stimuliCountText.text = stimuliCount + "/40";
+            // stimuliCountText.text = stimuliCount + "/40";
 
             // 反応時間
             double RT_d = stopWatch.Elapsed.TotalMilliseconds;

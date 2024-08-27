@@ -21,7 +21,7 @@ public class TutorialController : MonoBehaviour
     AudioSource audioSource;
     public GameObject blind;
     // public TextMeshPro taskCountText;
-    public TextMeshPro stimuliCountText;
+    // public TextMeshPro stimuliCountText;
 
     private float WAIT_TIME = 1f; //次の刺激までの待機時間
     private GameObject currentInstance; 
@@ -128,7 +128,7 @@ public class TutorialController : MonoBehaviour
             Destroy(currentInstance);
 
             stimuliCount += 1;
-            stimuliCountText.text = stimuliCount + "/8";
+            // stimuliCountText.text = stimuliCount + "/8";
 
             // 選択を初期化
             selected = "init";
@@ -205,7 +205,7 @@ public class TutorialController : MonoBehaviour
             }
 
             stimuliCount += 1;
-            stimuliCountText.text = stimuliCount + "/8";
+            // stimuliCountText.text = stimuliCount + "/8";
 
             // 選択を初期化
             selected = "init";
