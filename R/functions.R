@@ -38,6 +38,16 @@ add_row = function(df, displayformat, incongruency, RT_ave){
   df <- rbind(df, new_row)
   return(df)
 }
+add_row_test = function(df, displayformat, incongruency, RT_ave, condition){
+  new_row <- data.frame(
+    displayformat = displayformat,
+    incongruency = incongruency,
+    RT_ave = RT_ave,
+    condition = condition
+  )
+  df <- rbind(df, new_row)
+  return(df)
+}
 
 get_display_format = function(file_name){
   if(file_name == "controll"){
@@ -54,3 +64,4 @@ get_display_format = function(file_name){
   }
   return(display_format)
 }
+

@@ -1,0 +1,219 @@
+---
+title: "sample"
+output: html_document
+date: "2024-08-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## データの読み込み
+
+```{r}
+library(effectsize)
+library(emmeans)
+source("functions.R")
+```
+
+```{r}
+# formからのデータをよみだす
+form_data = read.csv("csv/JNNS2024_flanker_answer.csv", header = TRUE, sep = ",")
+
+# ID(ファイル名)を取得
+ids = form_data[, 7]
+
+# 分析用dfを作っておく
+df = data.frame(
+  displayFormat = character(), # 表示形式
+  incongruency = character(), # 一致不一致
+  RT_ave = numeric() # RT
+)
+
+file_names = c("controll", "2D", "barrier", "Far")
+```
+
+## 一個ばらつきをみてみる
+
+```{r}
+id = ids[1]
+for (file_name in file_names){
+  display_format = get_display_format(file_name)
+  
+  # パスつくる
+  path = paste0("csv/", id, "/")
+  
+  # csv読み出して確認
+  response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  paste0(path, id, file_name,".csv")
+  # View(response_data)
+  
+  hist_name = paste0(file_name, "Histgram")
+  hist(response_data$RT, main = hist_name, breaks = 30, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+}
+
+```
+
+## 全部合わせてみてみる
+
+データ成形
+
+```{r}
+controll_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+twod_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+barrier_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+far_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+for (id in ids){
+  file_name = "controll"
+  display_format = get_display_format(file_name)
+  path = paste0("csv/", id, "/")
+  response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  controll_df <- rbind(controll_df, response_data)
+  
+  file_name = "2D"
+  display_format = get_display_format(file_name)
+  path = paste0("csv/", id, "/")
+  response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  twod_df <- rbind(twod_df, response_data)
+  
+  file_name = "barrier"
+  display_format = get_display_format(file_name)
+  path = paste0("csv/", id, "/")
+  response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  barrier_df <- rbind(barrier_df, response_data)
+  
+  file_name = "Far"
+  display_format = get_display_format(file_name)
+  path = paste0("csv/", id, "/")
+  response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  far_df <- rbind(far_df, response_data)
+  
+}
+View(controll_df)
+View(twod_df)
+View(barrier_df)
+View(far_df)
+```
+
+ヒストグラムに
+
+```{r}
+# controll
+hist(controll_df$RT, main = "controll histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+
+# 2D
+hist(twod_df$RT, main = "2D histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+
+# barrier
+hist(barrier_df$RT, main = "barrier histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black",)
+
+# far
+hist(far_df$RT, main = "far histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+```
+
+バリアだけ外れ値でかいな，実験バグったときのやつと思われる
+
+## 処理後
+
+```{r}
+controll_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+twod_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+barrier_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+far_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+for (id in ids){
+  file_name = "controll"
+  display_format = get_display_format(file_name)
+  path = paste0("csv/", id, "/")
+  response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  response_data = remove_unnecessary_data(response_data)
+  controll_df <- rbind(controll_df, response_data)
+  
+  file_name = "2D"
+  display_format = get_display_format(file_name)
+  path = paste0("csv/", id, "/")
+  response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  response_data = remove_unnecessary_data(response_data)
+  twod_df <- rbind(twod_df, response_data)
+  
+  file_name = "barrier"
+  display_format = get_display_format(file_name)
+  path = paste0("csv/", id, "/")
+  response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  response_data = remove_unnecessary_data(response_data)
+  barrier_df <- rbind(barrier_df, response_data)
+  
+  file_name = "Far"
+  display_format = get_display_format(file_name)
+  path = paste0("csv/", id, "/")
+  response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  response_data = remove_unnecessary_data(response_data)
+  far_df <- rbind(far_df, response_data)
+  
+}
+View(controll_df)
+View(twod_df)
+View(barrier_df)
+View(far_df)
+```
+
+```{r}
+# controll
+hist(controll_df$RT, main = "controll histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+
+# 2D
+hist(twod_df$RT, main = "2D histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+
+# barrier
+hist(barrier_df$RT, main = "barrier histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black",xlim = c(-100, 1000),)
+
+# far
+hist(far_df$RT, main = "far histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+```
