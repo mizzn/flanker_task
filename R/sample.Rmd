@@ -8,11 +8,21 @@ date: "2024-08-28"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+# install.packages("ggplot2")
+# install.packages("multcomp")
+# install.packages("mvtnorm")
+# install.packages("dplyr")
+```
+
 ## データの読み込み
 
 ```{r}
 library(effectsize)
 library(emmeans)
+library(ggplot2)
+library(multcomp)
+library(dplyr)
 source("functions.R")
 ```
 
@@ -113,10 +123,10 @@ for (id in ids){
   far_df <- rbind(far_df, response_data)
   
 }
-View(controll_df)
-View(twod_df)
-View(barrier_df)
-View(far_df)
+# View(controll_df)
+# View(twod_df)
+# View(barrier_df)
+# View(far_df)
 ```
 
 ヒストグラムに
@@ -176,12 +186,21 @@ for (id in ids){
   response_data = remove_unnecessary_data(response_data)
   controll_df <- rbind(controll_df, response_data)
   
+  if (response_data$RT[1] > 700){
+    print(response_data$RT[1])
+    print(id)
+  }
+  
   file_name = "2D"
   display_format = get_display_format(file_name)
   path = paste0("csv/", id, "/")
   response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
   response_data = remove_unnecessary_data(response_data)
   twod_df <- rbind(twod_df, response_data)
+  
+  if (response_data$RT[1] > 700){
+    print(id)
+  }
   
   file_name = "barrier"
   display_format = get_display_format(file_name)
@@ -190,6 +209,10 @@ for (id in ids){
   response_data = remove_unnecessary_data(response_data)
   barrier_df <- rbind(barrier_df, response_data)
   
+  if (response_data$RT[1] > 700){
+    print(id)
+  }
+  
   file_name = "Far"
   display_format = get_display_format(file_name)
   path = paste0("csv/", id, "/")
@@ -197,11 +220,15 @@ for (id in ids){
   response_data = remove_unnecessary_data(response_data)
   far_df <- rbind(far_df, response_data)
   
+  if (response_data$RT[1] > 700){
+    print(id)
+  }
+  
 }
-View(controll_df)
-View(twod_df)
-View(barrier_df)
-View(far_df)
+# View(controll_df)
+# View(twod_df)
+# View(barrier_df)
+# View(far_df)
 ```
 
 ```{r}
@@ -216,4 +243,350 @@ hist(barrier_df$RT, main = "barrier histgram", breaks = 60, xlab = "Values", yla
 
 # far
 hist(far_df$RT, main = "far histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+```
+
+## 平均値でみてみる
+
+```{r}
+
+# 分析用dfを作っておく
+df = data.frame(
+  displayFormat = character(), # 表示形式
+  incongruency = character(), # 一致不一致
+  RT_ave = numeric() # RT
+)
+View(df)
+
+file_names = c("controll", "2D", "barrier", "Far")
+# display_formats = c("VR Object", "2D Object", "VR Object with barrier", "VR Object with distance)
+# id = "ZAQJ"
+
+for (id in ids) {
+  for (file_name in file_names){
+    display_format = get_display_format(file_name)
+    # パスつくる
+    path = paste0("csv/", id, "/")
+    # print(path)
+    
+    # csv読み出して確認
+    response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+    paste0(path, id, file_name,".csv")
+    # View(response_data)
+    
+    # 要因ごとに処理
+    congruent_data = chose_by_incongruency(response_data, "congruent")
+    # View(congruent_data)
+    filtered_congruent = remove_unnecessary_data(congruent_data)
+    # View(filtered_congruent)
+    congruent_ave = mean(filtered_congruent$RT, na.rm = TRUE)
+    df = add_row(df, display_format, "congruent", congruent_ave)
+    # View(df)
+    
+    incongruent_data = chose_by_incongruency(response_data, "incongruent")
+    filtered_incongruent = remove_unnecessary_data(incongruent_data)
+    # View(filtered_data)
+    incongruent_ave = mean(filtered_incongruent$RT, na.rm = TRUE)
+    df = add_row(df, display_format, "incongruent", incongruent_ave)
+    # View(df)
+  }
+}
+
+View(df)
+```
+
+```{r}
+ggplot(df, aes(x = RT_ave)) +
+  geom_histogram(binwidth = 10, fill = "skyblue", color = "black", alpha = 0.7) +
+  facet_wrap(~ displayformat) +
+  labs(title = "Histogram of RT_ave by Display Format", x = "RT_ave (ms)", y = "Frequency") +
+  theme_minimal()
+```
+
+## 一致不一致で色分け
+
+```{r}
+ggplot(df, aes(x = RT_ave, fill = incongruency)) +
+  geom_histogram(binwidth = 10, alpha = 0.7, position = "identity", color = "black") +
+  facet_wrap(~ displayformat) +
+  labs(title = "Histogram of RT_ave by Display Format and Incongruency", 
+       x = "RT_ave (ms)", 
+       y = "Frequency") +
+  scale_fill_manual(values = c("congruent" = "lightblue", "incongruent" = "lightcoral")) +
+  theme_minimal()
+```
+
+## 箱ひげ図
+
+```{r}
+ggplot(df, aes(x = displayformat, y = RT_ave, fill = incongruency)) +
+  geom_boxplot(alpha = 0.7, color = "black", outlier.shape = NA) +
+  labs(title = "Boxplot of RT_ave by Display Format and Incongruency", 
+       x = "Display Format", 
+       y = "RT_ave (ms)") +
+  scale_fill_manual(values = c("congruent" = "lightblue", "incongruent" = "lightcoral")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## バイオリンも出しておく
+
+```{r}
+ggplot(df, aes(x = displayformat, y = RT_ave, fill = incongruency)) +
+  geom_violin(alpha = 0.7, color = "black") +
+  labs(title = "Violin Plot of RT_ave by Display Format and Incongruency", 
+       x = "Display Format", 
+       y = "RT_ave (ms)") +
+  scale_fill_manual(values = c("congruent" = "lightblue", "incongruent" = "lightcoral")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+# 2DとVRのみ
+filtered_data <- df %>%
+  filter(displayformat %in% c("2D Object", "VR Object"))
+
+# print(filtered_data)
+
+ggplot(filtered_data, aes(x = displayformat, y = RT_ave, fill = incongruency)) +
+  geom_violin(alpha = 0.7, color = "black", position = position_dodge(width = 0.9), adjust = .7) +
+  
+  geom_boxplot(alpha = 0.7, color = "black", outlier.shape = NA, width = .1, 
+               position = position_dodge(width = 0.9), show.legend = FALSE) +
+  
+  geom_text(x = 1, y = 570, label = "n.s.") +
+  geom_segment(x = 0.77, xend = 0.77, y = 550, yend = 560) +
+  geom_segment(x = 1.22, xend = 1.22, y = 550, yend = 560) +
+  geom_segment(x = 0.77, xend = 1.22, y = 560, yend = 560) +
+  
+  geom_text(x = 2, y = 580, label = "n.s.") +
+  geom_segment(x = 1.77, xend = 1.77, y = 560, yend = 570) +
+  geom_segment(x = 2.22, xend = 2.22, y = 560, yend = 570) +
+  geom_segment(x = 1.77, xend = 2.22, y = 570, yend = 570) +
+  
+  geom_text(x = 1.5, y = 610, label = "n.s.") +
+  geom_segment(x = 1, xend = 1, y = 590, yend = 600) +
+  geom_segment(x = 2, xend = 2, y = 590, yend = 600) +
+  geom_segment(x = 1, xend = 2, y = 600, yend = 600) +
+  
+  labs(x = "Display Format", 
+       y = "mean RT (ms)") +
+  scale_fill_manual(values = c("congruent" = rgb(191, 228, 255, maxColorValue = 255), 
+                               "incongruent" = rgb(0, 90, 255, maxColorValue = 255))) +
+  scale_y_continuous(limits = c(300, 690)) + 
+  coord_fixed(ratio = 0.007) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 0, hjust = 1), legend.position = c(0.85, 0.85),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())
+```
+
+## anovaする
+
+```{r}
+AOV <- aov(RT_ave ~ incongruency + displayformat + incongruency * displayformat, data = df)
+summary(AOV)
+```
+
+```{r}
+tukey <- TukeyHSD(AOV)
+print(tukey)
+
+```
+
+# VR利用時間が0の人に限ってみる
+
+```{r}
+no_exp = form_data[form_data[, 8] == 0,]
+# View(no_exp)
+ids = no_exp[, 7]
+print(ids)
+```
+
+分析用にする
+
+```{r}
+# 分析用dfを作っておく
+no_exp_df = data.frame(
+  displayFormat = character(), # 表示形式
+  incongruency = character(), # 一致不一致
+  RT_ave = numeric() # RT
+)
+# View(df)
+
+file_names = c("controll", "2D", "barrier", "Far")
+# display_formats = c("VR Object", "2D Object", "VR Object with barrier", "VR Object with distance)
+# id = "ZAQJ"
+
+for (id in ids) {
+  for (file_name in file_names){
+    display_format = get_display_format(file_name)
+    # パスつくる
+    path = paste0("csv/", id, "/")
+    # print(path)
+    
+    # csv読み出して確認
+    response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+    paste0(path, id, file_name,".csv")
+    # View(response_data)
+    
+    # 要因ごとに処理
+    congruent_data = chose_by_incongruency(response_data, "congruent")
+    # View(congruent_data)
+    filtered_congruent = remove_unnecessary_data(congruent_data)
+    # View(filtered_congruent)
+    congruent_ave = mean(filtered_congruent$RT, na.rm = TRUE)
+    no_exp_df = add_row(no_exp_df, display_format, "congruent", congruent_ave)
+    # View(df)
+    
+    incongruent_data = chose_by_incongruency(response_data, "incongruent")
+    filtered_incongruent = remove_unnecessary_data(incongruent_data)
+    # View(filtered_data)
+    incongruent_ave = mean(filtered_incongruent$RT, na.rm = TRUE)
+    no_exp_df = add_row(no_exp_df, display_format, "incongruent", incongruent_ave)
+    # View(df)
+  }
+}
+```
+
+anovaとtukey
+
+```{r}
+no_exp_AOV <- aov(RT_ave ~ incongruency + displayformat + incongruency * displayformat, data = no_exp_df)
+summary(no_exp_AOV)
+no_exp_tukey <- TukeyHSD(no_exp_AOV)
+print(no_exp_tukey)
+```
+
+# VR利用時間が0ではないとき
+
+```{r}
+exp = form_data[form_data[, 8] != 10,]
+View(exp)
+ids = exp[, 7]
+print(ids)
+```
+
+データ整形
+
+```{r}
+controll_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+twod_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+barrier_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+far_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+for (id in ids){
+  file_name = "controll"
+  display_format = get_display_format(file_name)
+  path = paste0("csv/", id, "/")
+  response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  controll_df <- rbind(controll_df, response_data)
+  
+  file_name = "2D"
+  display_format = get_display_format(file_name)
+  path = paste0("csv/", id, "/")
+  response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  twod_df <- rbind(twod_df, response_data)
+  
+  file_name = "barrier"
+  display_format = get_display_format(file_name)
+  path = paste0("csv/", id, "/")
+  response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  barrier_df <- rbind(barrier_df, response_data)
+  
+  file_name = "Far"
+  display_format = get_display_format(file_name)
+  path = paste0("csv/", id, "/")
+  response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  far_df <- rbind(far_df, response_data)
+  
+}
+```
+
+```{r}
+# controll
+hist(controll_df$RT, main = "controll histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+
+# 2D
+hist(twod_df$RT, main = "2D histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+
+# barrier
+hist(barrier_df$RT, main = "barrier histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black",xlim = c(-100, 1000),)
+
+# far
+hist(far_df$RT, main = "far histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+```
+
+```{r}
+# 分析用dfを作っておく
+exp_df = data.frame(
+  displayFormat = character(), # 表示形式
+  incongruency = character(), # 一致不一致
+  RT_ave = numeric() # RT
+)
+# View(df)
+
+file_names = c("controll", "2D", "barrier", "Far")
+# display_formats = c("VR Object", "2D Object", "VR Object with barrier", "VR Object with distance)
+# id = "ZAQJ"
+
+for (id in ids) {
+  for (file_name in file_names){
+    display_format = get_display_format(file_name)
+    # パスつくる
+    path = paste0("csv/", id, "/")
+    # print(path)
+    
+    # csv読み出して確認
+    response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+    paste0(path, id, file_name,".csv")
+    # View(response_data)
+    
+    # 要因ごとに処理
+    congruent_data = chose_by_incongruency(response_data, "congruent")
+    # View(congruent_data)
+    filtered_congruent = remove_unnecessary_data(congruent_data)
+    # View(filtered_congruent)
+    congruent_ave = mean(filtered_congruent$RT, na.rm = TRUE)
+    exp_df = add_row(exp_df, display_format, "congruent", congruent_ave)
+    # View(df)
+    
+    incongruent_data = chose_by_incongruency(response_data, "incongruent")
+    filtered_incongruent = remove_unnecessary_data(incongruent_data)
+    # View(filtered_data)
+    incongruent_ave = mean(filtered_incongruent$RT, na.rm = TRUE)
+    exp_df = add_row(exp_df, display_format, "incongruent", incongruent_ave)
+    # View(df)
+  }
+}
+```
+
+```{r}
+exp_AOV <- aov(RT_ave ~ incongruency + displayformat + incongruency * displayformat, data = exp_df)
+summary(exp_AOV)
+exp_tukey <- TukeyHSD(exp_AOV)
+print(exp_tukey)
 ```

@@ -1,0 +1,81 @@
+---
+title: "error"
+output: html_document
+date: "2024-09-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(effectsize)
+library(emmeans)
+library(ggplot2)
+library(multcomp)
+library(dplyr)
+library(lsr)
+library(ggsignif)
+source("functions.R")
+```
+
+## 読み込み
+
+```{r}
+# formからのデータをよみだす
+form_data = read.csv("csv/JNNS2024_flanker_answer.csv", header = TRUE, sep = ",")
+
+# ID(ファイル名)を取得
+ids = form_data[, 7]
+
+# 分析用dfを作っておく
+error_df = data.frame(
+  displayFormat = character(), # 表示形式
+  incongruency = character(), # 一致不一致
+  error_rate = numeric() # RT
+)
+
+
+file_names = c("controll", "2D", "barrier", "Far")
+```
+
+```{r}
+for (id in ids) {
+  for (file_name in file_names){
+    display_format = get_display_format(file_name)
+    # パスつくる
+    path = paste0("csv/", id, "/")
+    # print(path)
+    
+    # csv読み出して確認
+    response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+    paste0(path, id, file_name,".csv")
+    # View(response_data)
+    
+    # 要因ごとに処理
+    congruent_data = chose_by_incongruency(response_data, "congruent")
+    filtered_congruent = remove_data(congruent_data)
+    con_error_rate = 1 - mean(filtered_congruent$TF, na.rm = TRUE)
+    error_df = add_error_row(error_df, display_format, "congruent", con_error_rate)
+    # View(df)
+    
+    incongruent_data = chose_by_incongruency(response_data, "incongruent")
+    filtered_incongruent = remove_data(incongruent_data)
+    incon_error_rate = 1 - mean(filtered_incongruent$TF, na.rm = TRUE)
+    error_df = add_error_row(error_df, display_format, "incongruent", incon_error_rate)
+    # View(df)
+  }
+}
+# print(error_df)
+```
+
+# anova
+
+```{r}
+error_AOV <- aov(error_rate ~ incongruency + displayformat + incongruency * displayformat, data = error_df)
+options(digits = 10)
+summary(error_AOV)
+etaSquared(error_AOV, anova = TRUE)
+error_tukey <- TukeyHSD(error_AOV)
+print(error_tukey)
+```

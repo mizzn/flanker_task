@@ -1,0 +1,137 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-09-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## データの読み込み
+
+```{r}
+library(effectsize)
+library(emmeans)
+library(ggplot2)
+library(multcomp)
+library(dplyr)
+library(readr)
+source("functions.R")
+```
+
+```{r}
+# formからのデータをよみだす
+form_data = read.csv("csv/JNNS2024_flanker_answer.csv", header = TRUE, sep = ",")
+
+# ID(ファイル名)を取得
+ids = form_data[, 7]
+
+# 分析用dfを作っておく
+df = data.frame(
+  displayFormat = character(), # 表示形式
+  incongruency = character(), # 一致不一致
+  RT_ave = numeric() # RT
+)
+
+file_names = c("controll", "2D", "barrier", "Far")
+```
+
+## ばらつきをみてみる
+
+```{r}
+for(id in ids){
+  
+  for (file_name in file_names){
+    display_format = get_display_format(file_name)
+    
+    # パスつくる
+    path = paste0("csv/", id, "/")
+    
+    # csv読み出して確認
+    response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+    paste0(path, id, file_name,".csv")
+    # View(response_data)
+    
+    hist_name = paste0(file_name, "Histgram", id)
+    hist(response_data$RT, main = hist_name, breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+    
+    mean_value = mean(response_data$RT, na.rm = TRUE)
+    abline(v = mean_value, col = "red", lwd = 2)
+    
+    text(x = mean_value, y = max(hist(response_data$RT, plot = FALSE)$counts) * 0.9, 
+         labels = paste("Mean =", round(mean_value, 2)), 
+         col = "red", pos = 4)
+  }
+
+}
+
+```
+
+# エラーなし
+
+```{r}
+for(id in ids){
+  
+  for (file_name in file_names){
+    display_format = get_display_format(file_name)
+    
+    # パスつくる
+    path = paste0("csv/", id, "/")
+    
+    # csv読み出して確認
+    response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+    response_data = remove_unnecessary_data(response_data)
+    paste0(path, id, file_name,".csv")
+    # View(response_data)
+    
+    hist_name = paste0(file_name, "Histgram", id)
+    hist(response_data$RT, main = hist_name, breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(200, 800), ylim = c(0, 14))
+    
+    mean_value = mean(response_data$RT, na.rm = TRUE)
+    abline(v = mean_value, col = "red", lwd = 2)
+    
+    text(x = mean_value, y = max(hist(response_data$RT, plot = FALSE)$counts) * 0.9, 
+         labels = paste("Mean =", round(mean_value, 2)), 
+         col = "red", pos = 4)
+  }
+
+}
+```
+
+# 最後2個だけ
+
+```{r}
+for(id in ids){
+  
+  for (file_name in file_names){
+    display_format = get_display_format(file_name)
+    
+    # パスつくる
+    path = paste0("csv/", id, "/")
+    
+    personal_data = readr::read_csv(paste0(path, id, "Data.csv"))
+    order = personal_data[, 4]
+    
+    
+    
+    # csv読み出して確認
+    # response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+    # response_data = remove_unnecessary_data(response_data)
+    # paste0(path, id, file_name,".csv")
+    # View(response_data)
+    
+    # hist_name = paste0(file_name, "Histgram", id)
+    # hist(response_data$RT, main = hist_name, breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(200, 800), ylim = c(0, 14))
+    
+    # mean_value = mean(response_data$RT, na.rm = TRUE)
+    # abline(v = mean_value, col = "red", lwd = 2)
+    
+    # text(x = mean_value, y = max(hist(response_data$RT, plot = FALSE)$counts) * 0.9, 
+    #     labels = paste("Mean =", round(mean_value, 2)), 
+    #     col = "red", pos = 4)
+  }
+
+}
+```
