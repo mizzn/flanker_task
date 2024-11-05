@@ -111,3 +111,18 @@ get_display_format = function(file_name){
   }
   return(display_format)
 }
+
+from_scene_name_to_file_name = function(scene_name){
+  if(scene_name == "FarFlankerTask"){
+    file_name = "Far"
+  }else if(scene_name == "BarrierFlankerTask"){
+    file_name = "barrier"
+  }else if(scene_name == "2DFlankerTask"){
+    file_name = "2D"
+  }else if(scene_name == "FlankerTaskScene"){
+    file_name = "controll"
+  }else{
+    file_name = "ERROR"
+  }
+  return(file_name)
+}
