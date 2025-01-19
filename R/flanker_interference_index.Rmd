@@ -163,11 +163,11 @@ ggplot(summary_index_df, aes(x = displayformat, y = mean)) +
 
 ```{r}
 # 2DとVRのみ
-filtered_index <- index_df %>%
-  filter(displayformat %in% c("2D Object", "VR Object"))
+# filtered_index <- index_df %>%
+#   filter(displayformat %in% c("2D Object", "VR Object"))
 # print(filtered_index)
 
-summary_filtered_index <- filtered_index %>%
+summary_filtered_index <- index_df %>%
   group_by(displayformat) %>%
   summarize(
     mean = mean(index),
@@ -186,6 +186,11 @@ ggplot(summary_filtered_index, aes(x = displayformat, y = mean)) +
   geom_segment(x = 1, xend = 1, y = 1.95, yend = 2.05) +
   geom_segment(x = 2, xend = 2, y = 1.95, yend = 2.05) +
   geom_segment(x = 1, xend = 2, y = 2.05, yend = 2.05) +
+  
+  scale_x_discrete(labels = c("2D Object" = "2D",
+                            "VR Object" = "VR",
+                            "VR Object with barrier" = "barrier",
+                            "VR Object with distance" = "distance"))+
   
   
   labs(x = "Display Format", y = "intererence") +
