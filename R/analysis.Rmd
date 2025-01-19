@@ -1,0 +1,411 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-09-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## データの読み込み
+
+```{r}
+library(effectsize)
+library(emmeans)
+library(ggplot2)
+library(multcomp)
+library(dplyr)
+library(readr)
+library(pwr)
+source("functions.R")
+```
+
+```{r}
+# formからのデータをよみだす
+form_data = read.csv("csv/answer.csv", header = TRUE, sep = ",")
+
+# ID(ファイル名)を取得
+ids = form_data[, 7]
+print(ids)
+
+# 分析用dfを作っておく
+df = data.frame(
+  displayFormat = character(), # 表示形式
+  incongruency = character(), # 一致不一致
+  RT_ave = numeric() # RT
+)
+
+file_names = c("controll", "2D", "barrier", "Far")
+```
+
+## ばらつきをみてみる
+
+```{r}
+for(id in ids){
+  
+  for (file_name in file_names){
+    display_format = get_display_format(file_name)
+    
+    # パスつくる
+    path = paste0("csv/", id, "/")
+    
+    # csv読み出して確認
+    response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+    paste0(path, id, file_name,".csv")
+    # View(response_data)
+    
+    hist_name = paste0(file_name, "Histgram", id)
+    hist(response_data$RT, main = hist_name, breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+    
+    mean_value = mean(response_data$RT, na.rm = TRUE)
+    abline(v = mean_value, col = "red", lwd = 2)
+    
+    text(x = mean_value, y = max(hist(response_data$RT, plot = FALSE)$counts) * 0.9, 
+         labels = paste("Mean =", round(mean_value, 2)), 
+         col = "red", pos = 4)
+  }
+
+}
+
+```
+
+# エラーなし
+
+```{r}
+for(id in ids){
+  
+  for (file_name in file_names){
+    display_format = get_display_format(file_name)
+    
+    # パスつくる
+    path = paste0("csv/", id, "/")
+    
+    # csv読み出して確認
+    response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+    response_data = remove_unnecessary_data(response_data)
+    paste0(path, id, file_name,".csv")
+    # View(response_data)
+    
+    hist_name = paste0(file_name, "Histgram", id)
+    hist(response_data$RT, main = hist_name, breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(200, 800), ylim = c(0, 14))
+    
+    mean_value = mean(response_data$RT, na.rm = TRUE)
+    abline(v = mean_value, col = "red", lwd = 2)
+    
+    text(x = mean_value, y = max(hist(response_data$RT, plot = FALSE)$counts) * 0.9, 
+         labels = paste("Mean =", round(mean_value, 2)), 
+         col = "red", pos = 4)
+  }
+
+}
+```
+
+# 最後2個だけ
+
+```{r}
+for(id in ids){
+    print(id)
+    # パスつくる
+    path = paste0("csv/", id, "/")
+    
+    personal_data = readr::read_csv(paste0(path, id, "Data.csv"))
+    order = as.character(personal_data[[4]])
+    
+    tasks_list <- unlist(strsplit(order, ","))
+    # print(tasks_list[1])
+    
+    # 3番目
+    scene_name = tasks_list[3]
+    file_name = from_scene_name_to_file_name(scene_name)
+    print(file_name)
+    
+    # csv読み出して確認
+    response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+    response_data = remove_unnecessary_data(response_data)
+    paste0(path, id, file_name,".csv")
+
+    hist_name = paste0(file_name, "Histgram", id)
+    hist(response_data$RT, main = hist_name, breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(200, 800), ylim = c(0, 14))
+
+    mean_value = mean(response_data$RT, na.rm = TRUE)
+    abline(v = mean_value, col = "red", lwd = 2)
+
+    text(x = mean_value, y = max(hist(response_data$RT, plot = FALSE)$counts) * 0.9,
+         labels = paste("Mean =", round(mean_value, 2)),
+         col = "red", pos = 4)
+  
+    # 4番目
+    scene_name = tasks_list[4]
+    file_name = from_scene_name_to_file_name(scene_name)
+    print(file_name)
+    
+    # csv読み出して確認
+    response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+    response_data = remove_unnecessary_data(response_data)
+    paste0(path, id, file_name,".csv")
+
+    hist_name = paste0(file_name, "Histgram", id)
+    hist(response_data$RT, main = hist_name, breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(200, 800), ylim = c(0, 14))
+
+    mean_value = mean(response_data$RT, na.rm = TRUE)
+    abline(v = mean_value, col = "red", lwd = 2)
+
+    text(x = mean_value, y = max(hist(response_data$RT, plot = FALSE)$counts) * 0.9,
+         labels = paste("Mean =", round(mean_value, 2)),
+         col = "red", pos = 4)
+}
+```
+
+## 全部まとめてみる
+
+```{r}
+controll_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+twod_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+barrier_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+far_df = data.frame(
+  stimulus = character(),
+  response = character(), # 表示形式
+  TF = integer(), # 一致不一致
+  RT = numeric() # RT
+)
+
+for (id in ids){
+  file_name = "controll"
+  display_format = get_display_format(file_name)
+  path = paste0("csv/", id, "/")
+  
+  
+  # パスつくる
+  path = paste0("csv/", id, "/")
+  
+  personal_data = readr::read_csv(paste0(path, id, "Data.csv"))
+  order = as.character(personal_data[[4]])
+  
+  tasks_list <- unlist(strsplit(order, ","))
+  # print(tasks_list[1])
+  
+  # 3番目
+  scene_name = tasks_list[3]
+  file_name = from_scene_name_to_file_name(scene_name)
+  display_format = get_display_format(file_name)
+  # print(file_name)
+    
+  response_data3 = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  response_data3 = remove_unnecessary_data(response_data3)
+  
+  if(file_name == "controll"){
+    controll_df <- rbind(controll_df, response_data3)
+  }else if(file_name == "2D"){
+    twod_df <- rbind(twod_df, response_data3)
+  }else if(file_name == "barrier"){
+    barrier_df <- rbind(barrier_df, response_data3)
+  }else if(file_name == "Far"){
+    far_df <- rbind(far_df, response_data3)
+  }
+  
+  if (response_data3$RT[1] > 700){
+    print(response_data3$RT[1])
+    print(id)
+  }
+    
+  # 4番目
+  scene_name = tasks_list[4]
+  file_name = from_scene_name_to_file_name(scene_name)
+  display_format = get_display_format(file_name)
+  # print(file_name)
+    
+  response_data4 = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  response_data4 = remove_unnecessary_data(response_data4)
+  
+  if(file_name == "controll"){
+    controll_df <- rbind(controll_df, response_data4)
+  }else if(file_name == "2D"){
+    twod_df <- rbind(twod_df, response_data4)
+  }else if(file_name == "barrier"){
+    barrier_df <- rbind(barrier_df, response_data4)
+  }else if(file_name == "Far"){
+    far_df <- rbind(far_df, response_data4)
+  }
+  
+  if (response_data4$RT[1] > 700){
+    print(response_data4$RT[1])
+    print(id)
+  }
+  
+  
+  
+}
+```
+
+```{r}
+# controll
+hist(controll_df$RT, main = "controll histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+
+# 2D
+hist(twod_df$RT, main = "2D histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+
+# barrier
+hist(barrier_df$RT, main = "barrier histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black",xlim = c(-100, 1000),)
+
+# far
+hist(far_df$RT, main = "far histgram", breaks = 60, xlab = "Values", ylab = "Frequency", col = "lightblue", border = "black", xlim = c(-100, 1000),)
+```
+
+## 平均値
+
+```{r}
+# 分析用dfを作っておく
+df = data.frame(
+  displayFormat = character(), # 表示形式
+  incongruency = character(), # 一致不一致
+  RT_ave = numeric() # RT
+)
+View(df)
+
+file_names = c("controll", "2D", "barrier", "Far")
+# display_formats = c("VR Object", "2D Object", "VR Object with barrier", "VR Object with distance)
+# id = "ZAQJ"
+
+for (id in ids) {
+  
+  file_name = "controll"
+  display_format = get_display_format(file_name)
+  path = paste0("csv/", id, "/")
+  
+  
+  # パスつくる
+  path = paste0("csv/", id, "/")
+  
+  personal_data = readr::read_csv(paste0(path, id, "Data.csv"))
+  order = as.character(personal_data[[4]])
+  
+  tasks_list <- unlist(strsplit(order, ","))
+  # print(tasks_list[1])
+  
+  # 3番目
+  scene_name = tasks_list[3]
+  file_name = from_scene_name_to_file_name(scene_name)
+  display_format = get_display_format(file_name)
+  
+   # csv読み出して確認
+  response_data3 = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  
+  # 要因ごとに処理
+  congruent_data3 = chose_by_incongruency(response_data3, "congruent")
+  filtered_congruent3 = remove_unnecessary_data(congruent_data3)
+  congruent_ave3 = mean(filtered_congruent3$RT, na.rm = TRUE)
+  df = add_row(df, display_format, "congruent", congruent_ave3)
+  
+  incongruent_data3 = chose_by_incongruency(response_data3, "incongruent")
+  filtered_incongruent3 = remove_unnecessary_data(incongruent_data3)
+  incongruent_ave3 = mean(filtered_incongruent3$RT, na.rm = TRUE)
+  df = add_row(df, display_format, "incongruent", incongruent_ave3)
+  
+   # 4番目
+  scene_name = tasks_list[4]
+  file_name = from_scene_name_to_file_name(scene_name)
+  display_format = get_display_format(file_name)
+  
+   # csv読み出して確認
+  response_data4 = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+  
+  # 要因ごとに処理
+  congruent_data4 = chose_by_incongruency(response_data4, "congruent")
+  filtered_congruent4 = remove_unnecessary_data(congruent_data4)
+  congruent_ave4 = mean(filtered_congruent3$RT, na.rm = TRUE)
+  df = add_row(df, display_format, "congruent", congruent_ave4)
+  
+  incongruent_data4 = chose_by_incongruency(response_data4, "incongruent")
+  filtered_incongruent4 = remove_unnecessary_data(incongruent_data4)
+  incongruent_ave4 = mean(filtered_incongruent4$RT, na.rm = TRUE)
+  df = add_row(df, display_format, "incongruent", incongruent_ave4)
+
+}
+
+View(df)
+```
+
+```{r}
+ggplot(df, aes(x = RT_ave)) +
+  geom_histogram(binwidth = 10, fill = "skyblue", color = "black", alpha = 0.7) +
+  facet_wrap(~ displayformat) +
+  labs(title = "Histogram of RT_ave by Display Format", x = "RT_ave (ms)", y = "Frequency") +
+  theme_minimal()
+
+ggplot(df, aes(x = RT_ave, fill = incongruency)) +
+  geom_histogram(binwidth = 10, alpha = 0.7, position = "dodge", color = "black") +
+  facet_wrap(~ displayformat) +
+  labs(title = "Histogram of RT_ave by Display Format and Incongruency", 
+       x = "RT_ave (ms)", 
+       y = "Frequency") +
+  scale_fill_manual(values = c("congruent" = "lightblue", "incongruent" = "lightcoral")) +
+  theme_minimal()
+```
+
+```{r}
+ggplot(df, aes(x = displayformat, y = RT_ave, fill = incongruency)) +
+  geom_boxplot(alpha = 0.7, color = "black", outlier.shape = NA) +
+  labs(title = "Boxplot of RT_ave by Display Format and Incongruency", 
+       x = "Display Format", 
+       y = "RT_ave (ms)") +
+  scale_fill_manual(values = c("congruent" = "lightblue", "incongruent" = "lightcoral")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+ggplot(df, aes(x = displayformat, y = RT_ave, fill = incongruency)) +
+  geom_violin(alpha = 0.7, color = "black", adjust = .5) +
+  labs(title = "Violin Plot of RT_ave by Display Format and Incongruency", 
+       x = "Display Format", 
+       y = "RT_ave (ms)") +
+  scale_fill_manual(values = c("congruent" = "lightblue", "incongruent" = "lightcoral")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+# anova
+
+```{r}
+AOV <- aov(RT_ave ~ incongruency + displayformat + incongruency * displayformat, data = df)
+summary(AOV)
+tukey <- TukeyHSD(AOV)
+print(tukey)
+effect_sizes <- eta_squared(AOV, partial = TRUE)
+print(effect_sizes)
+```
+
+サンプルは？
+
+```{r}
+# η^2 を Cohen's f に変換（Cohen's f = sqrt(η^2 / (1 - η^2)））
+eta2_incongruency <- 0.00286
+cohen_f <- sqrt(eta2_incongruency / (1 - eta2_incongruency))
+
+# 反復測定 ANOVA のための検出力分析
+result <- pwr.anova.test(k = 2,  # 水準数（例: 2水準）
+                         f = cohen_f,  # 効果量
+                         sig.level = 0.05,  # 有意水準
+                         power = 0.8)  # 検出力
+print(result)
+```

@@ -1,0 +1,48 @@
+---
+title: ''
+output: html_document
+date: "2024-09-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# formからのデータをよみだす
+form_data = read.csv("csv/JNNS2024_flanker_answer.csv", header = TRUE, sep = ",")
+
+print(form_data)
+```
+
+バグったデータを削除
+
+```{r}
+form_data = form_data[form_data[,7] != 630, ]
+print(form_data)
+```
+
+年齢について
+
+```{r}
+mean_age = mean(form_data[,3])
+sd_age = sd(form_data[,3])
+range_age = range(form_data[, 3])
+print(mean_age)
+print(sd_age)
+print(range_age)
+```
+
+性別
+
+```{r}
+sex_counts <- table(form_data[,4])
+print(sex_counts)
+```
+
+利き手
+
+```{r}
+hand_counts <- table(form_data[,5])
+print(hand_counts)
+```

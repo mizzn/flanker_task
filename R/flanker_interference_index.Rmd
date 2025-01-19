@@ -1,0 +1,358 @@
+---
+title: ''
+output: html_document
+date: "2024-09-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# install.packages("lsr")
+# install.packages("ggsignif")
+library(effectsize)
+library(emmeans)
+library(ggplot2)
+library(multcomp)
+library(dplyr)
+library(lsr)
+library(ggsignif)
+source("functions.R")
+```
+
+```{r}
+# formからのデータをよみだす
+form_data = read.csv("csv/JNNS2024_flanker_answer.csv", header = TRUE, sep = ",")
+
+# ID(ファイル名)を取得
+ids = form_data[, 7]
+
+# 分析用dfを作っておく
+df = data.frame(
+  displayFormat = character(), # 表示形式
+  incongruency = character(), # 一致不一致
+  RT_ave = numeric() # RT
+)
+index_df = data.frame(
+  displayFormat = character(), # 表示形式
+  index = numeric() # RT
+)
+
+file_names = c("controll", "2D", "barrier", "Far")
+```
+
+```{r}
+for (id in ids) {
+  for (file_name in file_names){
+    display_format = get_display_format(file_name)
+    # パスつくる
+    path = paste0("csv/", id, "/")
+    # print(path)
+    
+    # csv読み出して確認
+    response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+    paste0(path, id, file_name,".csv")
+    # View(response_data)
+    
+    # 要因ごとに処理
+    congruent_data = chose_by_incongruency(response_data, "congruent")
+    # View(congruent_data)
+    filtered_congruent = remove_unnecessary_data(congruent_data)
+    # View(filtered_congruent)
+    congruent_ave = mean(filtered_congruent$RT, na.rm = TRUE)
+    df = add_row(df, display_format, "congruent", congruent_ave)
+    # View(df)
+    
+    incongruent_data = chose_by_incongruency(response_data, "incongruent")
+    filtered_incongruent = remove_unnecessary_data(incongruent_data)
+    # View(filtered_data)
+    incongruent_ave = mean(filtered_incongruent$RT, na.rm = TRUE)
+    df = add_row(df, display_format, "incongruent", incongruent_ave)
+    # View(df)
+    
+    # 干渉指数の計算
+    index = (incongruent_ave - congruent_ave) / (incongruent_ave + congruent_ave) * 100
+    index_df = add_index_row(index_df, display_format, index)
+  }
+}
+View(df)
+View(index_df)
+```
+
+## ANOVAする
+
+```{r}
+AOV <- aov(RT_ave ~ incongruency + displayformat + incongruency * displayformat, data = df)
+options(digits = 10)
+summary(AOV)
+etaSquared(AOV, anova = TRUE)
+tukey <- TukeyHSD(AOV)
+print(tukey)
+```
+
+```{r}
+index_AOV <- aov(index ~ displayformat, data = index_df)
+summary(index_AOV)
+index_tukey <- TukeyHSD(index_AOV)
+print(index_tukey)
+```
+
+箱ヒゲにしておく
+
+```{r}
+summary_df <- df %>%
+  group_by(displayformat, incongruency) %>%
+  summarize(
+    mean = mean(RT_ave),
+    se = sd(RT_ave) / sqrt(n()),  # 標準誤差
+    lower_ci = mean - qt(0.975, df = n()-1) * se,  # 95%信頼区間の下限
+    upper_ci = mean + qt(0.975, df = n()-1) * se   # 95%信頼区間の上限
+  )
+
+summary_df_2D <- summary_df %>%
+  dplyr::filter(displayformat == "2D Object")
+View(summary_df_2D)
+
+ggplot(summary_df, aes(x = displayformat, y = mean, fill = incongruency)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.7) +
+  geom_signif(
+    data = summary_df_2D,
+    comparisons = list(
+      c("congruent", "incongruent")  # 同じdisplayformat内での比較
+    ),
+    map_signif_level = c("***" = 0.001, "**" = 0.01, "*" = 0.05, "n.s." = 1), 
+  ) +
+  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci), position = position_dodge(width = 0.8), width = 0.25) +
+  scale_fill_manual(values = c("congruent" = rgb(0, 0, 255, maxColorValue = 255),  # 青色
+                                "incongruent" = rgb(255, 0, 0, maxColorValue = 255))) +  # 赤色
+  labs(title = "RT Average with 95% Confidence Intervals by Display Format and Incongruency",
+       x = "Display Format", y = "RT Average") +
+  coord_cartesian(ylim = c(350, 450)) +
+  # theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)
+)
+
+```
+
+```{r}
+# ggplot(index_df, aes(x = displayformat, y = index)) +
+#   geom_boxplot(alpha = 0.7, color = "black", outlier.shape = NA) +
+#   labs(title = "Boxplot of RT_ave by Display Format and Incongruency", 
+#        x = "Display Format", 
+#        y = "flanker interference index") +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+summary_index_df <- index_df %>%
+  group_by(displayformat) %>%
+  summarize(
+    mean = mean(index),
+    se = sd(index) / sqrt(n()),  # 標準誤差
+    lower_ci = mean - qt(0.975, df = n()-1) * se,  # 95%信頼区間の下限
+    upper_ci = mean + qt(0.975, df = n()-1) * se,   # 95%信頼区間の上限
+    size = n()
+  )
+View(summary_index_df)
+ggplot(summary_index_df, aes(x = displayformat, y = mean)) +
+  geom_bar(stat = "identity", fill = rgb(173, 216, 230, maxColorValue = 255), width = 0.7) +  # 棒グラフ
+  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci), width = 0.2) +  # エラーバー
+  labs(x = "Display Format", y = "Flanker Intererence Index") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # X軸のラベルを45度傾ける
+```
+
+```{r}
+# 2DとVRのみ
+filtered_index <- index_df %>%
+  filter(displayformat %in% c("2D Object", "VR Object"))
+# print(filtered_index)
+
+summary_filtered_index <- filtered_index %>%
+  group_by(displayformat) %>%
+  summarize(
+    mean = mean(index),
+    se = sd(index) / sqrt(n()),  # 標準誤差
+    lower_ci = mean - qt(0.975, df = n()-1) * se,  # 95%信頼区間の下限
+    upper_ci = mean + qt(0.975, df = n()-1) * se,   # 95%信頼区間の上限
+    size = n()
+  )
+# print(summary_filtered_index)
+
+ggplot(summary_filtered_index, aes(x = displayformat, y = mean)) +
+  geom_bar(stat = "identity", fill = rgb(191, 228, 255, maxColorValue = 255), width = 0.7, color = "black") +  # 棒グラフ
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.3) + 
+  
+  geom_text(x = 1.5, y = 2.15, label = "n.s.") +
+  geom_segment(x = 1, xend = 1, y = 1.95, yend = 2.05) +
+  geom_segment(x = 2, xend = 2, y = 1.95, yend = 2.05) +
+  geom_segment(x = 1, xend = 2, y = 2.05, yend = 2.05) +
+  
+  
+  labs(x = "Display Format", y = "intererence") +
+  scale_y_continuous(limits = c(0, 2.2)) +
+  coord_fixed(ratio = 2.5) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(hjust = 1),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())  # X軸のラベルを45度傾ける
+```
+
+## VR vs 2Dでやってみる
+
+```{r}
+tmp_df = subset(df, displayformat == "VR Object" | displayformat == "2D Object")
+View(tmp_df)
+# vr = tmp_df[tmp_df$displayformat == "VR Object", "index"]
+# twod = tmp_df[tmp_df$displayformat == "2D Object", "index"]
+# # print(vr)
+# t_test = t.test(vr, twod, paired = TRUE)
+# print(t_test)
+
+tmp_AOV <- aov(RT_ave ~ incongruency + displayformat + incongruency * displayformat, data = tmp_df)
+options(digits = 10)
+summary(tmp_AOV)
+etaSquared(tmp_AOV, anova = TRUE)
+tmp_tukey <- TukeyHSD(tmp_AOV)
+print(tmp_tukey)
+
+```
+
+## VR経験が0でない人たちの
+
+```{r}
+exp = form_data[form_data[, 8] != 0,]
+# View(exp)
+ids = exp[, 7]
+# print(ids)
+
+# 分析用dfを作っておく
+exp_df = data.frame(
+  displayFormat = character(), # 表示形式
+  incongruency = character(), # 一致不一致
+  RT_ave = numeric() # RT
+)
+exp_index_df = data.frame(
+  displayFormat = character(), # 表示形式
+  index = numeric() # RT
+)
+
+file_names = c("controll", "2D", "barrier", "Far")
+```
+
+```{r}
+for (id in ids) {
+  for (file_name in file_names){
+    display_format = get_display_format(file_name)
+    # パスつくる
+    path = paste0("csv/", id, "/")
+    # print(path)
+    
+    # csv読み出して確認
+    response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+    paste0(path, id, file_name,".csv")
+    # View(response_data)
+    
+    # 要因ごとに処理
+    congruent_data = chose_by_incongruency(response_data, "congruent")
+    # View(congruent_data)
+    filtered_congruent = remove_unnecessary_data(congruent_data)
+    # View(filtered_congruent)
+    congruent_ave = mean(filtered_congruent$RT, na.rm = TRUE)
+    exp_df = add_row(exp_df, display_format, "congruent", congruent_ave)
+    # View(df)
+    
+    incongruent_data = chose_by_incongruency(response_data, "incongruent")
+    filtered_incongruent = remove_unnecessary_data(incongruent_data)
+    # View(filtered_data)
+    incongruent_ave = mean(filtered_incongruent$RT, na.rm = TRUE)
+    exp_df = add_row(exp_df, display_format, "incongruent", incongruent_ave)
+    # View(df)
+    
+    # 干渉指数の計算
+    index = (incongruent_ave - congruent_ave) / (incongruent_ave + congruent_ave) * 100
+    exp_index_df = add_index_row(exp_index_df, display_format, index)
+  }
+}
+```
+
+```{r}
+exp_AOV <- aov(RT_ave ~ incongruency + displayformat + incongruency * displayformat, data = exp_df)
+summary(exp_AOV)
+exp_tukey <- TukeyHSD(exp_AOV)
+print(exp_tukey)
+
+exp_index_AOV <- aov(index ~ displayformat, data = exp_index_df)
+summary(exp_index_AOV)
+exp_index_tukey <- TukeyHSD(exp_index_AOV)
+print(exp_index_tukey)
+```
+
+## 経験0のひとたちの
+
+```{r}
+no_exp = form_data[form_data[, 8] == 0,]
+# View(exp)
+ids = no_exp[, 7]
+# print(ids)
+
+# 分析用dfを作っておく
+no_exp_df = data.frame(
+  displayFormat = character(), # 表示形式
+  incongruency = character(), # 一致不一致
+  RT_ave = numeric() # RT
+)
+no_exp_index_df = data.frame(
+  displayFormat = character(), # 表示形式
+  index = numeric() # RT
+)
+
+file_names = c("controll", "2D", "barrier", "Far")
+```
+
+```{r}
+for (id in ids) {
+  for (file_name in file_names){
+    display_format = get_display_format(file_name)
+    # パスつくる
+    path = paste0("csv/", id, "/")
+    # print(path)
+    
+    # csv読み出して確認
+    response_data = read.csv(paste0(path, id, file_name,".csv"), header = TRUE, sep = ",")
+    paste0(path, id, file_name,".csv")
+    # View(response_data)
+    
+    # 要因ごとに処理
+    congruent_data = chose_by_incongruency(response_data, "congruent")
+    # View(congruent_data)
+    filtered_congruent = remove_unnecessary_data(congruent_data)
+    # View(filtered_congruent)
+    congruent_ave = mean(filtered_congruent$RT, na.rm = TRUE)
+    no_exp_df = add_row(no_exp_df, display_format, "congruent", congruent_ave)
+    # View(df)
+    
+    incongruent_data = chose_by_incongruency(response_data, "incongruent")
+    filtered_incongruent = remove_unnecessary_data(incongruent_data)
+    # View(filtered_data)
+    incongruent_ave = mean(filtered_incongruent$RT, na.rm = TRUE)
+    no_exp_df = add_row(no_exp_df, display_format, "incongruent", incongruent_ave)
+    # View(df)
+    
+    # 干渉指数の計算
+    index = (incongruent_ave - congruent_ave) / (incongruent_ave + congruent_ave) * 100
+    no_exp_index_df = add_index_row(no_exp_index_df, display_format, index)
+  }
+}
+```
+
+```{r}
+no_exp_AOV <- aov(RT_ave ~ incongruency + displayformat + incongruency * displayformat, data = no_exp_df)
+summary(no_exp_AOV)
+no_exp_tukey <- TukeyHSD(no_exp_AOV)
+print(tukey)
+
+no_exp_index_AOV <- aov(index ~ displayformat, data = no_exp_index_df)
+summary(exp_index_AOV)
+no_exp_index_tukey <- TukeyHSD(no_exp_index_AOV)
+print(no_exp_index_tukey)
+```
